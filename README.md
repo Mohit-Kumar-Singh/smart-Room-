@@ -1,3 +1,4 @@
+
 # Smart Room Remote
 
 A DIY universal remote + room sensor system: control AC, LG monitor, Wipro bulb,
@@ -15,3 +16,6 @@ See `PLANNING.md` for the full phased build plan, hardware list, and cost breakd
 
 ## Status
 Planning complete. Phase 1 (basic IR proof-of-concept) not yet started.
+
+# smart-Room-
+>>>>>>> abbd3492d06b922f12e5e99e74ccbde53cfd52a2
