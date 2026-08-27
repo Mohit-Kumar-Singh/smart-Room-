@@ -51,43 +51,87 @@ Format per entry: **Problem / Phase / Status / Decision / Ready steps / Open que
 ## 2. Godrej aer Smart Matic Kit (Bluetooth room freshener)
 
 - **Phase:** 3
-- **Status:** decided (two paths documented), execute at Phase 3
-- **Context:** BLE-only, pairs to the "Godrej aer Smart" app. **No native HA
-  integration.** A `bluetooth_proxy` alone does NOT expose a spray button.
+- **Status:** DECIDED — **full Bluetooth mode** (ESP32 as BLE client). User does not care
+  about warranty; the hardware-tap fallback is dropped as primary. Bench capture pending.
+- **Context:** BLE-only, pairs to the "Godrej aer Smart Matic" app
+  (`com.godrejcp.aermatic`). No native HA integration. A `bluetooth_proxy` alone does NOT
+  expose controls — the ESP32 must be a BLE **client**.
+- **Device (from app screenshots):** battery/refill gauge (99%), "Connected / last sync
+  Ns". One physical button on the unit cycles states; the app exposes discrete controls:
+  - **Spray Now** — single spray
+  - **On/Off** — toggle auto-spray mode
+  - **Spray Interval** — cycles 10m / 20m / 40m
+  - **Reset Refill** — resets the refill gauge to 100%
+  - Smart Scheduler (app-side; HA replaces it)
 
-- **Decision:** plan for **Path A** (hardware button tap). Attempt **Path B** (BLE replay)
-  first only if opening the case is unacceptable.
+### Known BLE protocol (from community guide, home-automation-india.github.io)
+- Service UUID: `6E400000-B5A3-F393-E0A9-E50E24DCCA9E`
+- Write characteristic: `6E400003-B5A3-F393-E0A9-E50E24DCCA9E`
+- **Spray Now** payload (verify against our own capture):
+  `bf 62 6d 54 18 68 62 6d 4e 18 9a 62 72 49 00 ff`
+  (framing looks like `bf ... 00 ff`; other commands likely share it)
+- Notify characteristic for refill %/state: unknown — likely `6E400002-...`, confirm by
+  GATT dump.
 
-### Path A - hardware button tap (primary, robust)
-Solder two wires across the dispenser's manual **boost/spray** button, drive it from an
-ESP32 GPIO via a transistor or opto-isolator, expose as an ESPHome `button`. HA handles
-scheduling.
-- Pros: guaranteed, no reverse-engineering, no BLE auth fight, ESP32 stays where the IR
-  LEDs want it.
-- Cons: opens the case (warranty); lose the app's own schedule (HA replaces it).
+### Capture plan (the "how")
+1. **nRF Connect (Android):** connect to the unit, dump all services/characteristics.
+   Confirm `6E400003` is WRITE / WRITE-NO-RESPONSE; find the NOTIFY char and subscribe.
+2. **HCI snoop:** Developer Options -> enable *Bluetooth HCI snoop log*. In the app press,
+   in a noted order: On, Off, Interval->10, ->20, ->40, Spray Now, Reset Refill (one each,
+   pause between). Take a bug report, extract `btsnoop_hci.log`, open in Wireshark.
+   Filter `btatt.opcode.method == 0x12 || btatt.opcode.method == 0x52`. Record the value
+   bytes written to `6E400003` for each action.
+3. **Check the connect sequence** for a fixed init/auth write before commands are
+   accepted; if present, replay it on connect.
+4. **ESPHome:** add `esp32_ble_tracker:` + `ble_client:` (freshener MAC). Template
+   `button`s -> `ble_client.ble_write` to `6E400003` with each captured payload
+   (Spray Now, On, Off, Reset Refill); a `select` (or 3 buttons) for interval 10/20/40.
+   `ble_client` `sensor`/`text_sensor` on the NOTIFY char -> parse refill % + state.
+5. **Cutover:** remove the device from the Godrej app so the ESP32 keeps the sole BLE
+   link; ESP32 holds a persistent auto-reconnect connection.
 
-### Path B - replay the BLE GATT write (cleaner, risky)
-1. Android: Developer Options -> enable **Bluetooth HCI snoop log**.
-2. Open the Godrej app, press **spray** once. Pull `btsnoop_hci.log`, open in Wireshark.
-3. Find the **ATT Write Request** - record the characteristic UUID + value bytes.
-   Capture the whole sequence (connect -> any auth write -> spray write).
-4. On the ESP32 add `esp32_ble_tracker` + `ble_client` (ESP32 becomes a BLE **client**,
-   not just a proxy) and a template `button` calling `ble_client.ble_write` to that
-   characteristic with the captured bytes.
-- Open risks:
-  - BLE devices accept **one connection** - once the ESP32 owns it, the app can't
-    connect (and vice versa). Forget the device in the app after cutover.
-  - If the spray command is protected by a rolling / bonded auth key, static replay
-    fails -> fall back to Path A.
-  - BLE range ~5-10 m. If the dispenser is far from the IR-blaster location, add a
-    **second ESP32** (~Rs 450) as a dedicated BLE node near the freshener.
-  - Dispenser may sleep / drop BLE to save battery -> few-seconds reconnect latency.
+### Caveats
+- BLE = **one connection**. App and ESP32 can't both hold it. Forget it in the app.
+- If a command turns out to be protected by rolling/bonded auth (static replay fails),
+  fall back to the **hardware button tap**: transistor/opto across the unit's physical
+  button on an ESP32 GPIO. Kept as plan B only.
+- Range ~5-10 m; battery unit. If it's far from the ESP32 IR-blaster spot, add a
+  **2nd ESP32** (~Rs 450) as a dedicated BLE node — see `docs/todo.md`.
+- Unit may drop BLE to save battery -> few-seconds reconnect latency.
 
-- **PWA wiring:** `pwa/index.html` already calls `fireButton('button.freshener_spray')`
-  and `toggleEntity('switch.freshener_auto')` - name the HA entities to match, or update
-  the PWA.
+### PWA wiring
+`pwa/index.html` already calls `fireButton('button.freshener_spray')` and
+`toggleEntity('switch.freshener_auto')`. Add entities for interval + refill %; name HA
+entities to match or update the PWA.
 
-- **Open questions:**
-  - Is the dispenser mains- or battery-powered? (affects BLE sleep behaviour + where the
-    ESP32 must sit)
-  - Distance from the planned ESP32 IR-blaster spot to the freshener?
+---
+
+## 3. Phone-as-appliance — reuse the HA phone as media + comms endpoint
+
+- **Phase:** 6 (stretch) — research done, **do not block phases 1-4**
+- **Goal:** drive the always-on HA phone from the PWA to: play white noise / music, expose
+  its camera + mic as a live feed, and "accept a call" so an app's video-call (Telegram /
+  Instagram / Meet) becomes an ad-hoc live view of the room.
+- **Approaches (can combine):**
+  - **A. ws-scrcpy / ws-scrcpy-web** (github.com/NetrisTV/ws-scrcpy, successor
+    bilbospocketses/ws-scrcpy-web): a Node server pushes Genymobile's `scrcpy-server` over
+    ADB and multiplexes video+audio+control onto one WebSocket; browser decodes via
+    WebCodecs. Full screen mirror + tap/type from a browser tab -> link/embed from the
+    PWA. Audio forward needs Android 11+. Run the Node server on another always-on machine
+    if the phone CPU is tight.
+  - **B. HA ADB service** (`androidtv`/adb integration talks to any ADB device): HA sends
+    `input tap x y`, `input keyevent`, `input text`, `am start <intent>`. Wrap as HA
+    scripts/buttons -> PWA calls them. No video, lightweight, good for concrete actions
+    ("play playlist", "answer call"). **Start here.**
+  - **C. On-device accessibility automation** (MacroDroid / Tasker+AutoInput) triggered by
+    HA webhook — reliable in-app taps without coordinate guessing.
+  - **Camera/mic feed:** IP Webcam (already planned, Phase 2 bonus) gives one-way
+    camera+audio -> HA Generic Camera. Two-way "accept call" has no clean API — it's a
+    coordinate tap on the accept button (option B/C) + the phone's own speaker/mic.
+- **Enablement:** USB debugging on; `adb tcpip 5555` — re-arm after every reboot via a
+  Termux:Boot script (or root). **LAN only — never expose ADB to the internet.**
+- **Risks:** the phone is also the HA server — scrcpy H.264 encode + HA + camera stream
+  may overload an old CPU (heat, battery, lag). Coordinate taps break on app updates.
+  ADB-over-TCP resets on reboot.
+- **Recommendation:** begin with **B** (HA ADB scripted actions) for real needs like white
+  noise; add **A** (ws-scrcpy) later only if full remote screen is wanted.

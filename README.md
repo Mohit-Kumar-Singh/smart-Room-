@@ -13,8 +13,8 @@ See `PLANNING.md` for the full phased build plan, hardware list, and cost breakd
 - `pwa/` — the installable iPhone remote control web app
 - `PLANNING.md` — phase-by-phase build plan with hardware + cost per phase
 - `docs/` — `hardware-shopping-list.md` (Amazon.in parts + board rationale),
-  `decisions-log.md` (pre-worked solutions per sub-problem); circuit/wiring diagrams
-  and enclosure design coming next
+  `decisions-log.md` (pre-worked solutions per sub-problem), `todo.md` (open questions +
+  bench tasks); circuit/wiring diagrams and enclosure design coming next
 
 ## Status
 Planning complete. Phase 1 (basic IR proof-of-concept) not yet started.
