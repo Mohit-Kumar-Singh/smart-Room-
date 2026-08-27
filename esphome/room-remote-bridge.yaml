@@ -1,0 +1,140 @@
+# ESPHome config for your ESP32 IR + Bluetooth proxy node
+# Place this ESP32 where it has line-of-sight to your AC and LG monitor.
+# Flash it once via USB using the ESPHome dashboard (runs on the Pi or your laptop).
+# After that, all future updates happen wirelessly (OTA) — no more USB needed.
+
+esphome:
+  name: room-remote-bridge
+  friendly_name: "Room Remote Bridge"
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# --- WiFi ---
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  # Fallback hotspot if it can't connect, so you can always recover it
+  ap:
+    ssid: "Room-Remote-Bridge Fallback"
+    password: "fallback123"
+
+# --- Lets Home Assistant auto-discover this device, no manual API code needed ---
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+logger:
+
+# --- IR transmitters ---
+# Two physical IR LEDs, each on its own GPIO + transistor.
+# Mount "ir_ac" near the AC, "ir_monitor" near the LG monitor (run the LED+resistor
+# leads out on longer wires if they're on different walls — only the LED itself
+# needs to be near the target, the transistor/ESP32 can stay central).
+remote_transmitter:
+  - id: ir_ac
+    pin: GPIO4
+    carrier_duty_percent: 50%
+  - id: ir_monitor
+    pin: GPIO16
+    carrier_duty_percent: 50%
+
+# --- IR receiver (used ONCE to "learn" codes from your real AC/TV remotes) ---
+remote_receiver:
+  pin:
+    number: GPIO15
+    inverted: true
+    mode:
+      input: true
+      pullup: true
+  dump: all          # <-- while learning: watch ESPHome logs, point real remote, press a button
+  tolerance: 55%
+  filter_nanoseconds: 250ns
+  idle: 3ms
+
+# --- Bluetooth proxy: lets Home Assistant see & control BLE devices (your freshener) ---
+# This turns the ESP32 into a BLE bridge for HA's Bluetooth integration —
+# no custom BLE code needed on your side at all.
+esp32_ble_tracker:
+bluetooth_proxy:
+  active: true
+
+# --- Room sensors ---
+i2c:
+  sda: GPIO21
+  scl: GPIO22
+  scan: true
+
+sensor:
+  - platform: bme280_i2c
+    address: 0x76
+    temperature:
+      name: "Room Temperature"
+    humidity:
+      name: "Room Humidity"
+    pressure:
+      name: "Room Pressure"
+    update_interval: 30s
+
+  - platform: adc
+    pin: GPIO34
+    name: "Room Noise Level"
+    attenuation: 12db
+    update_interval: 2s
+    filters:
+      - sliding_window_moving_average:
+          window_size: 10
+          send_every: 5
+
+  - platform: adc
+    pin: GPIO35
+    name: "Room Air Quality (raw)"
+    attenuation: 12db
+    update_interval: 15s
+    filters:
+      - sliding_window_moving_average:
+          window_size: 5
+          send_every: 5
+
+# LD2410 mmWave presence radar (UART, not analog — much more reliable than PIR)
+uart:
+  id: ld2410_uart
+  tx_pin: GPIO17
+  rx_pin: GPIO18
+  baud_rate: 256000
+
+# Requires the external ld2410 component — ESPHome docs: esphome.io/components/sensor/ld2410
+ld2410:
+binary_sensor:
+  - platform: ld2410
+    has_target:
+      name: "Room Occupied"
+    has_moving_target:
+      name: "Room Motion"
+
+# --- Example IR buttons (you'll replace the code after learning it) ---
+# Note the added `transmitter_id:` — this tells ESPHome which of the two LEDs to fire.
+button:
+  - platform: template
+    name: "AC Power Toggle"
+    on_press:
+      - remote_transmitter.transmit_raw:
+          transmitter_id: ir_ac
+          code: []          # <- paste the code captured while pointing the real AC remote at the receiver
+          carrier_frequency: 38kHz
+
+  - platform: template
+    name: "LG Monitor Power"
+    on_press:
+      - remote_transmitter.transmit_raw:
+          transmitter_id: ir_monitor
+          code: []          # <- paste the code captured while pointing the real LG remote at the receiver
+          carrier_frequency: 38kHz
+
+# Add one template button per remote function you learn (AC temp up/down, mode, monitor input, etc.)

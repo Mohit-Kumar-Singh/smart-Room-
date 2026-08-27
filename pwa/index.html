@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Room Remote</title>
+<link rel="manifest" href="manifest.json">
+<style>
+  :root{
+    --bg:#14140f;
+    --panel:#1d1c15;
+    --panel-edge:#2c2a1f;
+    --amber:#e8a33d;
+    --amber-dim:#8a6626;
+    --text:#f3ede1;
+    --text-dim:#8c8778;
+    --ok:#6fae6f;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; height:100%; background:var(--bg); color:var(--text);
+    font-family:"SF Mono","Menlo",monospace; overscroll-behavior:none;}
+  body{padding: max(20px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom));}
+
+  header{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:22px;}
+  header h1{font-size:15px; letter-spacing:.18em; text-transform:uppercase; color:var(--text-dim); font-weight:500; margin:0;}
+  header .status{font-size:11px; color:var(--ok);}
+  header .status.off{color:#a85c5c;}
+
+  .device{background:var(--panel); border:1px solid var(--panel-edge); border-radius:14px;
+    margin-bottom:14px; overflow:hidden;}
+  .device summary{list-style:none; padding:16px 18px; display:flex; align-items:center;
+    justify-content:space-between; cursor:pointer;}
+  .device summary::-webkit-details-marker{display:none;}
+  .device summary .name{font-size:16px; letter-spacing:.02em;}
+  .device summary .tag{font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.12em; margin-top:3px;}
+  .chev{color:var(--amber-dim); transition:transform .2s;}
+  details[open] .chev{transform:rotate(90deg);}
+
+  .controls{padding:0 18px 18px; display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
+  .controls.wide{grid-template-columns:1fr 1fr;}
+
+  button.ctrl{
+    background:#242217; border:1px solid var(--panel-edge); color:var(--text);
+    border-radius:10px; padding:14px 8px; font-family:inherit; font-size:12px;
+    letter-spacing:.04em; text-transform:uppercase;
+  }
+  button.ctrl:active{background:var(--amber-dim); color:#14140f; transform:scale(.97);}
+  button.ctrl.primary{background:var(--amber); color:#14140f; border-color:var(--amber); font-weight:600;}
+  button.ctrl.primary:active{background:#c98a2a;}
+
+  .toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--amber); color:#14140f; padding:9px 16px; border-radius:20px;
+    font-size:12px; opacity:0; transition:.25s; pointer-events:none;}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  .settings-btn{position:fixed; top:max(20px, env(safe-area-inset-top)); right:16px;
+    background:none; border:none; color:var(--text-dim); font-size:18px;}
+
+  dialog{background:var(--panel); color:var(--text); border:1px solid var(--panel-edge);
+    border-radius:14px; padding:20px; width:min(320px,86vw); font-family:inherit;}
+  dialog::backdrop{background:rgba(0,0,0,.6);}
+  dialog input{width:100%; background:#14140f; border:1px solid var(--panel-edge); color:var(--text);
+    padding:10px; border-radius:8px; margin:6px 0 14px; font-family:inherit; font-size:13px;}
+  dialog label{font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.1em;}
+  dialog .row{display:flex; gap:10px; justify-content:flex-end;}
+  dialog button{padding:9px 16px; border-radius:8px; border:1px solid var(--panel-edge); background:#242217; color:var(--text); font-family:inherit;}
+  dialog button.save{background:var(--amber); color:#14140f; border:none; font-weight:600;}
+</style>
+</head>
+<body>
+
+<button class="settings-btn" onclick="settingsDialog.showModal()">⚙</button>
+
+<header>
+  <h1>Room Remote</h1>
+  <span class="status" id="connStatus">checking…</span>
+</header>
+
+<!-- AC -->
+<details class="device">
+  <summary><div><div class="name">AC</div><div class="tag">IR</div></div><span class="chev">›</span></summary>
+  <div class="controls">
+    <button class="ctrl primary" onclick="fireButton('button.ac_power_toggle')">Power</button>
+    <button class="ctrl" onclick="fireButton('button.ac_temp_up')">Temp +</button>
+    <button class="ctrl" onclick="fireButton('button.ac_temp_down')">Temp −</button>
+    <button class="ctrl" onclick="fireButton('button.ac_mode')">Mode</button>
+    <button class="ctrl" onclick="fireButton('button.ac_fan')">Fan</button>
+    <button class="ctrl" onclick="fireButton('button.ac_swing')">Swing</button>
+  </div>
+</details>
+
+<!-- LG Monitor -->
+<details class="device">
+  <summary><div><div class="name">LG Monitor</div><div class="tag">IR</div></div><span class="chev">›</span></summary>
+  <div class="controls">
+    <button class="ctrl primary" onclick="fireButton('button.lg_monitor_power')">Power</button>
+    <button class="ctrl" onclick="fireButton('button.lg_monitor_input')">Input</button>
+    <button class="ctrl" onclick="fireButton('button.lg_monitor_vol_up')">Vol +</button>
+    <button class="ctrl" onclick="fireButton('button.lg_monitor_vol_down')">Vol −</button>
+  </div>
+</details>
+
+<!-- Wipro Bulb -->
+<details class="device">
+  <summary><div><div class="name">Bulb</div><div class="tag">WiFi · Tuya</div></div><span class="chev">›</span></summary>
+  <div class="controls wide">
+    <button class="ctrl primary" onclick="toggleEntity('light.wipro_bulb')">Toggle</button>
+    <button class="ctrl" onclick="setBrightness('light.wipro_bulb', 255)">Full bright</button>
+    <button class="ctrl" onclick="setBrightness('light.wipro_bulb', 60)">Dim</button>
+    <button class="ctrl" onclick="setBrightness('light.wipro_bulb', 15)">Night</button>
+  </div>
+</details>
+
+<!-- WiFi Switches -->
+<details class="device">
+  <summary><div><div class="name">Switches</div><div class="tag">WiFi</div></div><span class="chev">›</span></summary>
+  <div class="controls wide">
+    <button class="ctrl primary" onclick="toggleEntity('switch.room_switch_1')">Switch 1</button>
+    <button class="ctrl primary" onclick="toggleEntity('switch.room_switch_2')">Switch 2</button>
+  </div>
+</details>
+
+<!-- Freshener -->
+<details class="device">
+  <summary><div><div class="name">Freshener</div><div class="tag">Bluetooth</div></div><span class="chev">›</span></summary>
+  <div class="controls wide">
+    <button class="ctrl primary" onclick="fireButton('button.freshener_spray')">Spray now</button>
+    <button class="ctrl" onclick="toggleEntity('switch.freshener_auto')">Auto mode</button>
+  </div>
+</details>
+
+<!-- Room Sensors -->
+<details class="device" open>
+  <summary><div><div class="name">Room</div><div class="tag">Sensors</div></div><span class="chev">›</span></summary>
+  <div class="controls wide" id="sensorGrid" style="grid-template-columns:repeat(2,1fr);">
+    <div class="ctrl" style="text-align:left; cursor:default;">Temp<br><b id="s_temp">–</b></div>
+    <div class="ctrl" style="text-align:left; cursor:default;">Humidity<br><b id="s_humidity">–</b></div>
+    <div class="ctrl" style="text-align:left; cursor:default;">Noise<br><b id="s_noise">–</b></div>
+    <div class="ctrl" style="text-align:left; cursor:default;">Air Quality<br><b id="s_air">–</b></div>
+    <div class="ctrl" style="text-align:left; cursor:default;">Presence<br><b id="s_presence">–</b></div>
+    <div class="ctrl" style="text-align:left; cursor:default;">Motion<br><b id="s_motion">–</b></div>
+  </div>
+</details>
+
+<div class="toast" id="toast">Sent</div>
+
+<dialog id="settingsDialog">
+  <label>Home Assistant URL</label>
+  <input id="haUrl" placeholder="http://homeassistant.local:8123">
+  <label>Long-Lived Access Token</label>
+  <input id="haToken" type="password" placeholder="paste token">
+  <div class="row">
+    <button onclick="settingsDialog.close()">Cancel</button>
+    <button class="save" onclick="saveSettings()">Save</button>
+  </div>
+</dialog>
+
+<script>
+// NOTE: this demo keeps settings in memory only (Claude's preview sandbox disallows
+// localStorage). When you deploy this file to your own web server, swap the two
+// lines marked below to use localStorage so settings persist between visits.
+let HA_URL = "";     // e.g. http://homeassistant.local:8123
+let HA_TOKEN = "";
+
+function saveSettings(){
+  HA_URL = document.getElementById('haUrl').value.replace(/\/$/,'');
+  HA_TOKEN = document.getElementById('haToken').value;
+  // localStorage.setItem('ha_url', HA_URL); localStorage.setItem('ha_token', HA_TOKEN); // <- enable on your own server
+  settingsDialog.close();
+  checkConnection();
+}
+
+async function haCall(path, body){
+  if(!HA_URL || !HA_TOKEN){ settingsDialog.showModal(); return; }
+  try{
+    const res = await fetch(`${HA_URL}${path}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${HA_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+    if(!res.ok) throw new Error(res.status);
+    showToast('Sent');
+  }catch(e){ showToast('Failed — check settings'); }
+}
+
+function fireButton(entityId){
+  haCall('/api/services/button/press', { entity_id: entityId });
+}
+function toggleEntity(entityId){
+  const domain = entityId.split('.')[0];
+  haCall(`/api/services/${domain}/toggle`, { entity_id: entityId });
+}
+function setBrightness(entityId, brightness){
+  haCall('/api/services/light/turn_on', { entity_id: entityId, brightness });
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1400);
+}
+
+async function checkConnection(){
+  const el = document.getElementById('connStatus');
+  if(!HA_URL || !HA_TOKEN){ el.textContent = 'not configured'; el.className='status off'; return; }
+  try{
+    const res = await fetch(`${HA_URL}/api/`, { headers: { 'Authorization': `Bearer ${HA_TOKEN}` }});
+    if(res.ok){ el.textContent = 'connected'; el.className = 'status'; }
+    else throw new Error();
+  }catch(e){ el.textContent = 'offline'; el.className = 'status off'; }
+}
+
+async function getState(entityId){
+  if(!HA_URL || !HA_TOKEN) return null;
+  try{
+    const res = await fetch(`${HA_URL}/api/states/${entityId}`, {
+      headers: { 'Authorization': `Bearer ${HA_TOKEN}` }
+    });
+    if(!res.ok) return null;
+    return await res.json();
+  }catch(e){ return null; }
+}
+
+async function refreshSensors(){
+  const map = {
+    s_temp: ['sensor.room_temperature', v => v ? `${parseFloat(v).toFixed(1)}°C` : '–'],
+    s_humidity: ['sensor.room_humidity', v => v ? `${parseFloat(v).toFixed(0)}%` : '–'],
+    s_noise: ['sensor.room_noise_level', v => v ? `${parseFloat(v).toFixed(0)}` : '–'],
+    s_air: ['sensor.room_air_quality_raw', v => v ? `${parseFloat(v).toFixed(0)}` : '–'],
+    s_presence: ['binary_sensor.room_occupied', v => v === 'on' ? 'Yes' : v === 'off' ? 'No' : '–'],
+    s_motion: ['binary_sensor.room_motion', v => v === 'on' ? 'Yes' : v === 'off' ? 'No' : '–'],
+  };
+  for(const [elId, [entity, fmt]] of Object.entries(map)){
+    const state = await getState(entity);
+    document.getElementById(elId).textContent = fmt(state ? state.state : null);
+  }
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+checkConnection();
+refreshSensors();
+setInterval(refreshSensors, 10000); // poll every 10s while the app is open
+</script>
+</body>
+</html>
