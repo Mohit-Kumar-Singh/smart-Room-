@@ -1,0 +1,59 @@
+# Build orchestration for the Smart Room Remote.
+# Runner: Task  ->  https://taskfile.dev  (winget install Task.Task  |  scoop install task)
+# One-time deps:
+#   pipx install esphome            # ESP32 build/flash/logs
+#   pip  install yamllint           # optional YAML lint
+# Runtime automations live in Home Assistant, not here (see docs/decisions-log.md #6).
+
+version: '3'
+
+tasks:
+  default:
+    desc: List available tasks
+    cmds:
+      - task --list
+
+  esphome:phase1:
+    desc: "Phase 1 - flash the IR-only PoC config over USB"
+    dir: esphome
+    cmds:
+      - esphome run phase1-ir-poc.yaml
+
+  esphome:logs:
+    desc: "Stream ESP32 logs (use while learning IR codes - point remote, press button)"
+    dir: esphome
+    cmds:
+      - esphome logs phase1-ir-poc.yaml
+
+  esphome:compile:
+    desc: "Compile the full bridge config without uploading (CI-style check)"
+    dir: esphome
+    cmds:
+      - esphome compile room-remote-bridge.yaml
+
+  esphome:run:
+    desc: "Flash + OTA the full bridge config (Phase 2+)"
+    dir: esphome
+    cmds:
+      - esphome run room-remote-bridge.yaml
+
+  pwa:serve:
+    desc: "Serve the PWA on :8000 for on-phone testing (find your PC IP, open http://<ip>:8000)"
+    dir: pwa
+    cmds:
+      - python -m http.server 8000
+
+  yaml:lint:
+    desc: "Lint ESPHome + Home Assistant YAML (needs: pip install yamllint)"
+    cmds:
+      - yamllint esphome homeassistant
+
+  ble:capture:
+    desc: "Print the Godrej aer BLE capture procedure"
+    cmds:
+      - echo "nRF Connect GATT dump + Bluetooth HCI snoop -> Wireshark. Full steps: docs/decisions-log.md section 2."
+
+  todo:
+    desc: "Show open checklist items"
+    cmds:
+      - 'grep -nE "\\[ \\]|\\[~\\]" docs/todo.md'

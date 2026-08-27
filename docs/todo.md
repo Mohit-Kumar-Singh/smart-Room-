@@ -14,6 +14,8 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · **(sw)** = doable now, 
 - [ ] Micro-USB **data** cable on hand (not charge-only)
 - [ ] Install CP2102 driver on the Windows PC (usually auto; else Silicon Labs VCP)
 - [x] **(sw)** Trim ESPHome config to IR-only for Phase 1 -> `esphome/phase1-ir-poc.yaml`
+- [x] **(sw)** Build orchestration: `Taskfile.yml` (decisions-log #6)
+- [ ] Install Task (`winget install Task.Task`) + `pipx install esphome`
 - [ ] Measure distance: planned ESP32 spot -> Godrej freshener (decides 2nd ESP32 BLE node)
 - [ ] Check Wipro bulb model + which app (white vs RGB) — `decisions-log.md` #1
 

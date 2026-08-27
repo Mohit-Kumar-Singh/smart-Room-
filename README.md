@@ -12,6 +12,7 @@ See `PLANNING.md` for the full phased build plan, hardware list, and cost breakd
 - `homeassistant/` — Home Assistant integration setup notes (Tuya, IR, BLE)
 - `pwa/` — the installable iPhone remote control web app
 - `PLANNING.md` — phase-by-phase build plan with hardware + cost per phase
+- `Taskfile.yml` — build commands (flash, logs, serve PWA, lint); runner: https://taskfile.dev
 - `docs/` — `hardware-shopping-list.md` (Amazon.in parts + board rationale),
   `decisions-log.md` (pre-worked solutions per sub-problem), `todo.md` (open questions +
   bench tasks); circuit/wiring diagrams and enclosure design coming next

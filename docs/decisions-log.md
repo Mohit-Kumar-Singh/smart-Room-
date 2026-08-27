@@ -189,3 +189,24 @@ entities to match or update the PWA.
 
 ### Note on entry #4 price
 Tuya Wi-Fi smart plug came to **~Rs 700** (not the Rs 300-600 first estimated).
+
+---
+
+## 6. Orchestration approach (build vs runtime)
+
+- **Phase:** all
+- **Status:** DECIDED.
+- **Two layers, lightest option each:**
+  - **Runtime orchestration = Home Assistant native automations / scripts.**
+    HA is already the orchestrator. **Node-RED is deferred** - it adds a second Node.js
+    process on the old Android phone that also runs HA Core in Termux, against the
+    "keep the phone light" principle in PLANNING.md. Reconsider Node-RED only if
+    automation flows get genuinely complex (multi-branch, lots of state).
+  - **Build orchestration = Task (`Taskfile.yml` at repo root).**
+    Single cross-platform binary, YAML syntax like the rest of the repo, works in
+    PowerShell. Wraps: `esphome:phase1` (flash), `esphome:logs` (IR learning),
+    `esphome:compile`, `pwa:serve`, `yaml:lint`, `ble:capture`, `todo`.
+    Install: `winget install Task.Task`; deps `pipx install esphome`.
+- **Not chosen:** Node-RED (resources), n8n (overkill), Ansible (single phone, manual
+  setup is documented and fine), Docker Compose (HA Core runs bare in Termux, not
+  containerised).
