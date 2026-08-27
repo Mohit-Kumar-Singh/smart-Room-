@@ -131,6 +131,17 @@
   </div>
 </details>
 
+<!-- Door Lock -->
+<details class="device">
+  <summary><div><div class="name">Door</div><div class="tag">Lock</div></div><span class="chev">›</span></summary>
+  <div class="controls wide">
+    <button class="ctrl primary" onclick="lockDoor(false)">Unlock</button>
+    <button class="ctrl" onclick="lockDoor(true)">Lock</button>
+    <div class="ctrl" style="text-align:left; cursor:default;">Lock<br><b id="s_lock">–</b></div>
+    <div class="ctrl" style="text-align:left; cursor:default;">Door<br><b id="s_door">–</b></div>
+  </div>
+</details>
+
 <!-- LED Strip (IR remote) -->
 <details class="device">
   <summary><div><div class="name">LED Strip</div><div class="tag">IR</div></div><span class="chev">›</span></summary>
@@ -232,6 +243,9 @@ function toggleEntity(entityId){
 function setBrightness(entityId, brightness){
   haCall('/api/services/light/turn_on', { entity_id: entityId, brightness });
 }
+function lockDoor(shouldLock){
+  haCall(`/api/services/lock/${shouldLock ? 'lock' : 'unlock'}`, { entity_id: 'lock.room_door' });
+}
 
 function showToast(msg){
   const t = document.getElementById('toast');
@@ -269,6 +283,8 @@ async function refreshSensors(){
     s_air: ['sensor.room_air_quality_raw', v => v ? `${parseFloat(v).toFixed(0)}` : '–'],
     s_presence: ['binary_sensor.room_occupied', v => v === 'on' ? 'Yes' : v === 'off' ? 'No' : '–'],
     s_motion: ['binary_sensor.room_motion', v => v === 'on' ? 'Yes' : v === 'off' ? 'No' : '–'],
+    s_lock: ['lock.room_door', v => v ? v[0].toUpperCase() + v.slice(1) : '–'],
+    s_door: ['binary_sensor.room_door', v => v === 'on' ? 'Open' : v === 'off' ? 'Closed' : '–'],
   };
   for(const [elId, [entity, fmt]] of Object.entries(map)){
     const state = await getState(entity);

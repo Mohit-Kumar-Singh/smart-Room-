@@ -59,6 +59,13 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · **(sw)** = doable now, 
       plug power-on state = off; entity `switch.mosquito_repellent`; add PWA toggle.
       `decisions-log.md` #4
 - [ ] If bulb is RGB: add a colour row to the PWA Bulb panel
+- [ ] **Door lock** — `decisions-log.md` #7. First decide: current door hardware
+      (aldrop / knob / mortise+deadbolt / lever+cylinder), budget (retrofit smart lock
+      ~Rs 10k vs DIY 12 V solenoid ~Rs 2k), power reachable at the frame. Then:
+  - [ ] Fit lock mechanism (keep mechanical inside egress — mandatory)
+  - [ ] Reed switch on frame -> `binary_sensor.room_door`
+  - [ ] ESPHome `lock` -> `lock.room_door` (logic on ESP32, not the phone; LAN only)
+  - [ ] PWA Door panel already wired (`lockDoor()`, `s_lock`, `s_door`)
 - [ ] Godrej aer (full BLE) — `decisions-log.md` #2:
   - [ ] nRF Connect GATT dump; confirm write char `6E400003`, find NOTIFY char
   - [ ] HCI snoop capture: On, Off, Interval 10/20/40, Spray Now, Reset Refill

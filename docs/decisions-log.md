@@ -210,3 +210,50 @@ Tuya Wi-Fi smart plug came to **~Rs 700** (not the Rs 300-600 first estimated).
 - **Not chosen:** Node-RED (resources), n8n (overkill), Ansible (single phone, manual
   setup is documented and fine), Docker Compose (HA Core runs bare in Termux, not
   containerised).
+
+---
+
+## 7. Room door lock system
+
+- **Phase:** 3-4 (new; own mini-project)
+- **Status:** PRELIMINARY - blocked on: what door hardware exists now (see `todo.md`).
+- **Hard safety rules (non-negotiable, apply to every option):**
+  1. **Mechanical egress always.** The inside handle / thumbturn must retract the bolt
+     regardless of electronics, power, or hub state. A bedroom door that can trap you is
+     a fire hazard. No purely-electronic latch on the inside.
+  2. **Lock logic lives on the ESP32 (ESPHome), not the phone hub.** HA Core on an old
+     Android phone is not reliable enough to sit between you and a locked door. It works
+     if HA is down.
+  3. **LAN only.** Never expose lock control to the internet.
+  4. If electric strike / maglock: small battery/UPS so a power cut doesn't lock or
+     unlock unexpectedly. Prefer **fail-safe** (unlocks on power loss) for a bedroom.
+  5. Auto-lock on "room empty" (LD2410) only with a long delay + easy manual unlock -
+     lock-out risk.
+
+- **Options (pick after we know the door):**
+  - **A. Retrofit smart deadbolt** (Godrej / Yale / Qubo / Ultraloq), keeps the inside
+    thumbturn. Tuya-based -> `tuya-local`; Zigbee -> needs a coordinator dongle on the
+    hub. Best UX. ~Rs 8,000-20,000.
+  - **B. 12 V solenoid electric strike or drop bolt + ESP32 relay** (same relay pattern
+    as entry #4 fallback). Existing handle still opens it mechanically from inside.
+    ESPHome `lock` component. Needs 12 V supply + wiring to the frame (door-loop cable if
+    the bolt is on the leaf). ~Rs 1,500-3,000. **Likely DIY pick.**
+  - **C. Servo / linear actuator throwing the existing tower bolt (aldrop)** - common on
+    Indian room doors. No door mods, reversible, but alignment is fragile.
+    ~Rs 300-1,500.
+  - **D. Maglock** - only if fail-safe is acceptable (door unlocks in a power cut).
+    ~Rs 1,200-3,000 + relay + PSU.
+
+- **Sensors:** add a **reed switch** on the frame -> ESP32 `binary_sensor` ->
+  `binary_sensor.room_door` (Open/Closed). ~Rs 30. Worth it for all options.
+
+- **Integration:** ESPHome `lock` -> HA `lock.room_door` -> PWA. Locks have real state
+  (`locked`/`unlocked`), so the PWA shows status (unlike IR devices).
+  `pwa/index.html` already has a **Door** panel: Unlock / Lock buttons + `s_lock` +
+  `s_door` status tiles, and a `lockDoor()` helper calling `lock/lock` | `lock/unlock`.
+
+- **Open questions (todo.md):**
+  - Current door hardware: aldrop / tower bolt, cylindrical knob, mortise + deadbolt,
+    or already a lever handle with euro cylinder?
+  - Budget: retrofit smart lock (~Rs 10k) vs DIY solenoid (~Rs 2k)?
+  - Is 230 V / a 12 V adapter reachable near the door frame?
