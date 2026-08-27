@@ -43,7 +43,7 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · **(sw)** = doable now, 
       template buttons `button.led_strip_*` — already wired in the PWA. `decisions-log.md` #5
       (add a 3rd IR LED on another GPIO if the strip controller is off-axis from the AC LED)
 - [ ] Create HA long-lived access token
-- [ ] **(sw)** PWA: switch settings from in-memory to `localStorage` (`pwa/index.html`)
+- [x] **(sw)** PWA: switch settings from in-memory to `localStorage` (`pwa/index.html`)
 - [ ] **(sw)** PWA: add `icon-192.png` / `icon-512.png` (referenced by manifest, missing)
 - [ ] Deploy PWA (static host or HA `www/`), add to iPhone home screen, enter URL + token
 - [ ] Verify AC + monitor controls from the PWA
