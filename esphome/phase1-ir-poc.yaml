@@ -1,0 +1,72 @@
+# Phase 1 - IR proof of concept ONLY.
+# Stripped-down config: no BLE proxy, no sensors, no HA required.
+# Goal: flash over USB, learn one AC IR code from the logs, fire it from the
+# device's own web page (http://<esp-ip>/). Once this works, move to
+# room-remote-bridge.yaml for the full build.
+#
+# Flash: https://web.esphome.io  ->  Connect  ->  paste this  ->  Install (USB).
+# Copy secrets.yaml.example -> secrets.yaml and fill wifi_ssid / wifi_password.
+# api_encryption_key + ota_password: leave blank, the ESPHome dashboard fills them;
+# for the browser web-installer you can delete the `api:` block entirely if unused.
+
+esphome:
+  name: room-remote-bridge
+  friendly_name: "Room Remote Bridge (Phase 1)"
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "Room-Remote-Bridge Fallback"
+    password: "fallback123"
+
+logger:            # <-- watch this while learning codes
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+# Local control page with the test buttons - no Home Assistant needed in Phase 1.
+web_server:
+  port: 80
+
+# Optional: only needed once you connect this to Home Assistant (Phase 2).
+# Safe to leave in; delete if the web installer complains about a missing key.
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+# --- IR transmitter: one LED on GPIO4, via NPN transistor (2N2222) ---
+remote_transmitter:
+  - id: ir_ac
+    pin: GPIO4
+    carrier_duty_percent: 50%
+
+# --- IR receiver: used to LEARN codes from the real AC remote ---
+# Point the real remote at the TSOP/VS1838 module, press a button, read the log line.
+remote_receiver:
+  pin:
+    number: GPIO15
+    inverted: true
+    mode:
+      input: true
+      pullup: true
+  dump: all
+  tolerance: 55%
+  filter_nanoseconds: 250ns
+  idle: 3ms
+
+# --- Test button: replace code:[] with what the logger prints for AC power ---
+button:
+  - platform: template
+    name: "AC Power (test)"
+    on_press:
+      - remote_transmitter.transmit_raw:
+          transmitter_id: ir_ac
+          code: []          # <- paste the raw code captured from the logs
+          carrier_frequency: 38kHz

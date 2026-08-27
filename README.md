@@ -17,4 +17,5 @@ See `PLANNING.md` for the full phased build plan, hardware list, and cost breakd
   bench tasks); circuit/wiring diagrams and enclosure design coming next
 
 ## Status
-Planning complete. Phase 1 (basic IR proof-of-concept) not yet started.
+Planning complete; full phase-by-phase checklist in `docs/todo.md`.
+Phase 1 config (`esphome/phase1-ir-poc.yaml`) is ready to flash — hardware not yet in hand.

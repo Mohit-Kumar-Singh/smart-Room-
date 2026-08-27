@@ -1,4 +1,4 @@
-const CACHE = "room-remote-v1";
+const CACHE = "room-remote-v2";
 const ASSETS = ["./index.html", "./manifest.json"];
 
 self.addEventListener("install", (e) => {

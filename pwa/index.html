@@ -158,19 +158,29 @@
 </dialog>
 
 <script>
-// NOTE: this demo keeps settings in memory only (Claude's preview sandbox disallows
-// localStorage). When you deploy this file to your own web server, swap the two
-// lines marked below to use localStorage so settings persist between visits.
-let HA_URL = "";     // e.g. http://homeassistant.local:8123
-let HA_TOKEN = "";
+// Settings persist in localStorage. Wrapped in try/catch because private-mode
+// browsers and some webviews throw on access.
+function lsGet(k){ try { return localStorage.getItem(k) || ""; } catch(e){ return ""; } }
+function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+
+let HA_URL = lsGet('ha_url');       // e.g. http://homeassistant.local:8123
+let HA_TOKEN = lsGet('ha_token');
 
 function saveSettings(){
   HA_URL = document.getElementById('haUrl').value.replace(/\/$/,'');
   HA_TOKEN = document.getElementById('haToken').value;
-  // localStorage.setItem('ha_url', HA_URL); localStorage.setItem('ha_token', HA_TOKEN); // <- enable on your own server
+  lsSet('ha_url', HA_URL);
+  lsSet('ha_token', HA_TOKEN);
   settingsDialog.close();
   checkConnection();
+  refreshSensors();
 }
+
+// Prefill the dialog with saved values whenever it opens.
+document.querySelector('.settings-btn').addEventListener('click', () => {
+  document.getElementById('haUrl').value = HA_URL;
+  document.getElementById('haToken').value = HA_TOKEN;
+});
 
 async function haCall(path, body){
   if(!HA_URL || !HA_TOKEN){ settingsDialog.showModal(); return; }

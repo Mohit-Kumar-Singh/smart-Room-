@@ -1,29 +1,90 @@
-# TODO / Open Questions
+# TODO — phase by phase
 
-Things to resolve before or during the phase that needs them. Solutions land in
-`decisions-log.md`; this file is just the running checklist.
+Master checklist. Pre-worked solutions live in `decisions-log.md`; hardware picks in
+`hardware-shopping-list.md`. Tick items as done and push.
 
-## Info still needed
+Legend: `[ ]` todo · `[~]` in progress · `[x]` done · **(sw)** = doable now, no hardware.
 
-- [ ] **Wipro bulb** — exact model + originating app (Wipro Smart / Wipro Next /
-      Smart Life). Determines white-only vs RGB command set and whether the PWA Bulb
-      panel needs a colour row. (Phase 3, decisions-log #1)
-- [ ] **Godrej aer** — confirmed battery-powered (app shows 99% refill gauge, "Connected /
-      last sync"). Still need: distance from the planned ESP32 IR-blaster spot to the
-      dispenser (decides whether a 2nd ESP32 BLE node is required). (Phase 3, #2)
+---
 
-## Capture / bench tasks
+## Phase 0 — Procurement & prep (no hardware needed)
 
-- [ ] **Godrej aer BLE capture** — full byte map for: Spray Now, On, Off, Interval
-      10/20/40 min, Reset Refill; plus the NOTIFY characteristic for refill %. Method in
-      decisions-log #2. Known so far: service `6E400000-B5A3-F393-E0A9-E50E24DCCA9E`,
-      write char `6E400003-...`, spray-now payload from community guide.
-- [ ] **AC + LG monitor IR codes** — learn via ESPHome `remote_receiver` dump, paste into
-      template buttons. (Phase 1-2)
+- [ ] Order Phase 1 parts (see `hardware-shopping-list.md`): ESP32 38-pin CP2102,
+      breadboard + jumpers, IR receiver modules, IR emitter LEDs, 2N2222 x10, resistor kit
+- [ ] Micro-USB **data** cable on hand (not charge-only)
+- [ ] Install CP2102 driver on the Windows PC (usually auto; else Silicon Labs VCP)
+- [x] **(sw)** Trim ESPHome config to IR-only for Phase 1 -> `esphome/phase1-ir-poc.yaml`
+- [ ] Measure distance: planned ESP32 spot -> Godrej freshener (decides 2nd ESP32 BLE node)
+- [ ] Check Wipro bulb model + which app (white vs RGB) — `decisions-log.md` #1
 
-## Research spikes (deferred)
+## Phase 1 — Prove IR works (~1 day, ~Rs 500)
 
-- [ ] **Phone-as-appliance** — reuse the HA phone as media player + comms endpoint
-      (white noise / music, camera+mic feed, "accept call" for a live VC feed) driven
-      from the PWA, via screen-mirror + input injection. Options in decisions-log #3.
-      Phase 6 stretch, do not block phases 1-4.
+- [ ] Flash `phase1-ir-poc.yaml` via https://web.esphome.io over USB
+- [ ] `secrets.yaml` from `secrets.yaml.example`, fill WiFi (keys auto-generated)
+- [ ] Wire IR receiver OUT -> GPIO15, VCC/GND
+- [ ] Wire IR LED -> 2N2222 -> GPIO4 (100-220R series, 1k base)
+- [ ] Open ESPHome logs, point real AC remote at receiver, capture **AC power** raw code
+- [ ] Paste code into the `AC Power` template button, fire from the device web page
+- [ ] **Decision gate:** IR transmit reliable at real range? If yes -> Phase 2
+
+## Phase 2 — Full IR + real hub (~2 days)
+
+- [ ] Prep old Android phone: Developer Options, "don't optimize" Termux, Autostart on
+      (MIUI/ColorOS/FuntouchOS), keep plugged near router
+- [ ] Termux from **F-Droid** (not Play Store) -> `pkg install python git` -> `pip install homeassistant`
+- [ ] Termux:Boot add-on so `hass` auto-starts on reboot
+- [ ] Static DHCP leases for the phone AND the ESP32
+- [ ] HA onboarding at `http://<phone-ip>:8123`; install ESPHome add-on / add the device
+- [ ] Add 2nd IR LED -> GPIO16 (LG monitor); promote config to full `room-remote-bridge.yaml`
+- [ ] Learn remaining codes: AC temp +/-, mode, fan, swing; monitor power/input/vol
+- [ ] Create HA long-lived access token
+- [ ] **(sw)** PWA: switch settings from in-memory to `localStorage` (`pwa/index.html`)
+- [ ] **(sw)** PWA: add `icon-192.png` / `icon-512.png` (referenced by manifest, missing)
+- [ ] Deploy PWA (static host or HA `www/`), add to iPhone home screen, enter URL + token
+- [ ] Verify AC + monitor controls from the PWA
+- [ ] Bonus: IP Webcam on the phone -> HA Generic Camera
+
+## Phase 3 — WiFi + Bluetooth devices (~1 day)
+
+- [ ] Wipro bulb: `pip install tinytuya` -> `python -m tinytuya wizard` -> device_id + local_key
+- [ ] Install HACS; add **tuya-local**; add bulb by IP + id + key
+- [ ] Name entity `light.wipro_bulb`; test toggle + brightness from PWA
+- [ ] WiFi switches: same Tuya path; entities `switch.room_switch_1` / `_2`
+- [ ] If bulb is RGB: add a colour row to the PWA Bulb panel
+- [ ] Godrej aer (full BLE) — `decisions-log.md` #2:
+  - [ ] nRF Connect GATT dump; confirm write char `6E400003`, find NOTIFY char
+  - [ ] HCI snoop capture: On, Off, Interval 10/20/40, Spray Now, Reset Refill
+  - [ ] Check for init/auth write on connect
+  - [ ] ESPHome `esp32_ble_tracker` + `ble_client`; buttons + interval select + refill sensor
+  - [ ] Cutover: forget device in Godrej app
+  - [ ] PWA: entities `button.freshener_spray`, `switch.freshener_auto`, interval, refill %
+
+## Phase 4 — Room sensors (~1 day, ~Rs 900)
+
+- [ ] Buy: BME280 (verify humidity, not BMP280), MQ-135, KY-037, LD2410C
+- [ ] Wire: BME280 I2C SDA/SCL GPIO21/22 (addr 0x76); KY-037 AO -> GPIO34;
+      MQ-135 AO -> GPIO35; LD2410 TX/RX -> GPIO17/18
+- [ ] Add the external `ld2410` component to the ESPHome config
+- [ ] MQ-135 burn-in 24-48 h, then set calibration baseline
+- [ ] Confirm all six sensor tiles populate in the PWA (`sensor.room_*`, `binary_sensor.room_*`)
+
+## Phase 5 — Diagrams & enclosure
+
+- [ ] Circuit diagram (Fritzing or KiCad) for the ESP32 + IR + sensor build
+- [ ] Wiring diagram with GPIO/pin callouts
+- [ ] Enclosure: project box or 3D-printed; IR LED windows aimed at AC + monitor;
+      vents for MQ-135/BME280; radar has clear plastic in front
+
+## Phase 6 — Phone-as-appliance (stretch, do not block 1-4)
+
+- [ ] HA <-> phone over ADB; `adb tcpip 5555` persisted via Termux:Boot; LAN only
+- [ ] HA scripts: play audio / white noise, launch IP Webcam, "accept call" tap macro
+- [ ] PWA: add a "Phone" panel exposing those scripts
+- [ ] Later: ws-scrcpy server (on a non-phone machine) for browser screen mirror; link from PWA
+
+## Cross-cutting / housekeeping
+
+- [ ] Keep `decisions-log.md` current as sub-problems get solved
+- [ ] `secrets.yaml` must stay gitignored (already in `.gitignore`)
+- [ ] Update README **Status** at the end of each phase
+- [ ] Add `docs/` circuit/wiring diagrams when Phase 5 starts
