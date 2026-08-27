@@ -135,3 +135,28 @@ entities to match or update the PWA.
   ADB-over-TCP resets on reboot.
 - **Recommendation:** begin with **B** (HA ADB scripted actions) for real needs like white
   noise; add **A** (ws-scrcpy) later only if full remote screen is wanted.
+
+---
+
+## 4. All Out Ultra Power+ mosquito vaporizer on/off
+
+- **Phase:** 3
+- **Status:** DECIDED — switch its mains power with a Tuya Wi-Fi smart plug.
+- **Context:** plug-in 230 V liquid vaporizer. No on/off switch; it is "on" whenever
+  powered (only a low/high heat knob). Controlling it = switching mains. No need to open
+  the device. A servo/motor on the knob was considered and rejected (fragile, pointless).
+
+- **Decision:** **Tuya Wi-Fi smart plug**, same integration path as the bulb + switches.
+  - Plug the All Out into it, leave the knob on medium.
+  - Comes through `tuya-local` alongside the bulb; name the entity
+    `switch.mosquito_repellent`; add a toggle to the PWA.
+  - Set the plug's **power-on state = off** (or "remember") so a power blip does not
+    silently re-enable it.
+  - HA schedules it: on at dusk / off at dawn, or tie to room presence (LD2410, Phase 4).
+  - Heater load ~5-7 W — any plug/relay handles it. Do NOT rapid-cycle; on/off only.
+
+- **Fallback (only if everything must be one ESP32 box):** 5 V opto-isolated relay module
+  on an ESP32 GPIO (ESPHome `switch` platform `gpio`), contacts breaking the live wire to
+  a socket. Requires proper mains practice — fuse, insulation, strain relief, mains vs
+  low-voltage separation. Preferred to avoid; the smart plug is the same effort as adding
+  another WiFi switch with none of the risk.

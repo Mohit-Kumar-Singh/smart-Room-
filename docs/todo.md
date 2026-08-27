@@ -50,6 +50,9 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · **(sw)** = doable now, 
 - [ ] Install HACS; add **tuya-local**; add bulb by IP + id + key
 - [ ] Name entity `light.wipro_bulb`; test toggle + brightness from PWA
 - [ ] WiFi switches: same Tuya path; entities `switch.room_switch_1` / `_2`
+- [ ] Mosquito vaporizer (All Out Ultra Power+): Tuya Wi-Fi smart plug, knob on medium,
+      plug power-on state = off; entity `switch.mosquito_repellent`; add PWA toggle.
+      `decisions-log.md` #4
 - [ ] If bulb is RGB: add a colour row to the PWA Bulb panel
 - [ ] Godrej aer (full BLE) — `decisions-log.md` #2:
   - [ ] nRF Connect GATT dump; confirm write char `6E400003`, find NOTIFY char
