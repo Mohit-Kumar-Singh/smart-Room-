@@ -50,7 +50,7 @@ Wiring targets (from `esphome/room-remote-bridge.yaml`):
 
 | # | Part | Notes | Approx price |
 |---|---|---|---|
-| - | **Tuya Wi-Fi smart plug** (16A, with power monitoring optional) | for the All Out Ultra Power+ mosquito vaporizer - switch its mains. Any Tuya/Smart Life plug; comes through `tuya-local` with the bulb. Set power-on state = off. | Rs 300-600 |
+| - | **Tuya Wi-Fi smart plug** (6A/16A) | for the All Out Ultra Power+ mosquito vaporizer - switch its mains. Any Tuya/Smart Life plug; comes through `tuya-local` with the bulb. Set power-on state = off. | ~Rs 700 |
 | - | (maybe) **2nd ESP32 38-pin** | only if the Godrej freshener is >5-8 m from the main ESP32 - dedicated BLE node. Same board as Phase 1. | Rs 494 |
 
 ## Phase 4 - buy later, only when you reach sensors

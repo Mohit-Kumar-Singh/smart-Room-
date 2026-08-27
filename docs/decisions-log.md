@@ -160,3 +160,32 @@ entities to match or update the PWA.
   a socket. Requires proper mains practice — fuse, insulation, strain relief, mains vs
   low-voltage separation. Preferred to avoid; the smart plug is the same effort as adding
   another WiFi switch with none of the risk.
+
+---
+
+## 5. Room LED strip (IR-remote RGB strip)
+
+- **Phase:** 1-2 (IR learning), PWA panel any time
+- **Status:** DECIDED — learn its IR remote with the same ESP32 blaster. Zero new hardware.
+- **Context:** generic RGB LED strip with a small IR remote (power, brightness +/-,
+  fixed colours, flash/fade/strobe/smooth modes). The receiver eye is on the strip's
+  inline controller box.
+
+- **Decision:** treat it exactly like the AC / LG monitor:
+  1. Point the strip remote at the ESP32's IR receiver (GPIO15), press each button,
+     capture the raw/NEC code from the ESPHome logs.
+  2. Add one `template` `button` per function, transmitting via `ir_ac` (or a 3rd IR LED
+     if the controller is far from the AC-aimed LED — cheap to add on another GPIO).
+  3. Entities: `button.led_strip_power`, `_bright_up`, `_bright_down`, `_white`, `_red`,
+     `_green`, `_blue`, `_flash`, `_fade` (already wired in `pwa/index.html`).
+
+- **Caveats:**
+  - IR is one-way, no state feedback — PWA buttons are fire-and-forget (no on/off
+    indicator). Same as the AC panel.
+  - Needs line-of-sight from an IR LED to the controller's receiver eye.
+  - Optional future upgrade (not now): replace the controller with an ESP32 running WLED
+    for true colour/brightness/effects + real state. Keeps to the "local, no rewrite"
+    principle but is a Phase 5+ nicety.
+
+### Note on entry #4 price
+Tuya Wi-Fi smart plug came to **~Rs 700** (not the Rs 300-600 first estimated).

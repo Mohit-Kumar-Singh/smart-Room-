@@ -37,6 +37,9 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · **(sw)** = doable now, 
 - [ ] HA onboarding at `http://<phone-ip>:8123`; install ESPHome add-on / add the device
 - [ ] Add 2nd IR LED -> GPIO16 (LG monitor); promote config to full `room-remote-bridge.yaml`
 - [ ] Learn remaining codes: AC temp +/-, mode, fan, swing; monitor power/input/vol
+- [ ] Learn **LED strip** remote codes (power, bright +/-, colours, flash/fade); add
+      template buttons `button.led_strip_*` — already wired in the PWA. `decisions-log.md` #5
+      (add a 3rd IR LED on another GPIO if the strip controller is off-axis from the AC LED)
 - [ ] Create HA long-lived access token
 - [ ] **(sw)** PWA: switch settings from in-memory to `localStorage` (`pwa/index.html`)
 - [ ] **(sw)** PWA: add `icon-192.png` / `icon-512.png` (referenced by manifest, missing)
