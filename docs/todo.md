@@ -59,12 +59,16 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · **(sw)** = doable now, 
       plug power-on state = off; entity `switch.mosquito_repellent`; add PWA toggle.
       `decisions-log.md` #4
 - [ ] If bulb is RGB: add a colour row to the PWA Bulb panel
-- [ ] **Door lock** — `decisions-log.md` #7. First decide: current door hardware
-      (aldrop / knob / mortise+deadbolt / lever+cylinder), budget (retrofit smart lock
-      ~Rs 10k vs DIY 12 V solenoid ~Rs 2k), power reachable at the frame. Then:
-  - [ ] Fit lock mechanism (keep mechanical inside egress — mandatory)
+- [ ] **Door lock** — servo throws the existing aldrop, battery node. `decisions-log.md` #7
+  - [ ] Confirm the door bolt is an aldrop / sliding tower bolt
+  - [ ] Buy: MG996R servo, dedicated ESP32, 2x 18650 + holder + TP4056/BMS, reed switch,
+        bracket/linkage bits (see `hardware-shopping-list.md` Phase 3)
+  - [ ] Mount servo + **slotted linkage** so the bolt still slides by hand unpowered (mandatory)
+  - [ ] MOSFET to cut servo VCC between operations
   - [ ] Reed switch on frame -> `binary_sensor.room_door`
-  - [ ] ESPHome `lock` -> `lock.room_door` (logic on ESP32, not the phone; LAN only)
+  - [ ] ESPHome template `lock` -> `lock.room_door` (logic on ESP32, LAN only)
+  - [ ] Power: try a thin USB cable to the nearest socket first; else solar trickle /
+        deep-sleep polling / weekly recharge
   - [ ] PWA Door panel already wired (`lockDoor()`, `s_lock`, `s_door`)
 - [ ] Godrej aer (full BLE) — `decisions-log.md` #2:
   - [ ] nRF Connect GATT dump; confirm write char `6E400003`, find NOTIFY char

@@ -53,6 +53,21 @@ Wiring targets (from `esphome/room-remote-bridge.yaml`):
 | - | **Tuya Wi-Fi smart plug** (6A/16A) | for the All Out Ultra Power+ mosquito vaporizer - switch its mains. Any Tuya/Smart Life plug; comes through `tuya-local` with the bulb. Set power-on state = off. | ~Rs 700 |
 | - | (maybe) **2nd ESP32 38-pin** | only if the Godrej freshener is >5-8 m from the main ESP32 - dedicated BLE node. Same board as Phase 1. | Rs 494 |
 
+### Door lock (servo on the aldrop, battery node) — decisions-log #7
+
+| # | Part | Notes | Approx price |
+|---|---|---|---|
+| - | **MG996R metal-gear servo** | throws the aldrop via a lever + slotted linkage. Upgrade to 25 kg-cm or a worm-drive linear actuator if the bolt is stiff. | Rs 300 |
+| - | **Dedicated ESP32** (38-pin or an ESP32-C3 mini for lower power) | door node, separate from the IR/sensor ESP32 | Rs 300-500 |
+| - | **2x 18650 + holder + TP4056/BMS** (or 4xAA + buck) | no mains at the door; size for ~2 A servo stall | Rs 300-500 |
+| - | **Reed switch** (NC/NO, surface mount) | frame -> `binary_sensor.room_door` | Rs 30-60 |
+| - | **Logic-level MOSFET** (e.g. IRLZ44N / AO3400 board) | cut servo VCC between operations | Rs 20-50 |
+| - | Bracket + linkage (3D-print or L-brackets, screws, pushrod) | mount servo beside the bolt; keep the linkage loose enough for manual slide | Rs 100-300 |
+| - | (optional) **5-6 V solar panel** | trickle-charge the pack if the door faces light | Rs 150-300 |
+| - | (optional) micro-switch | true "locked" end-of-travel confirmation | Rs 20 |
+
+Try a thin USB cable to the nearest socket first — it removes the whole battery problem.
+
 ## Phase 4 - buy later, only when you reach sensors
 
 | # | Part | Listing | Price | Rating | Note |

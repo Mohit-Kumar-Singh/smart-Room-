@@ -216,7 +216,8 @@ Tuya Wi-Fi smart plug came to **~Rs 700** (not the Rs 300-600 first estimated).
 ## 7. Room door lock system
 
 - **Phase:** 3-4 (new; own mini-project)
-- **Status:** PRELIMINARY - blocked on: what door hardware exists now (see `todo.md`).
+- **Status:** DECIDED (2026-08-28) — **servo throws the existing bolt**, battery-powered
+  node (no mains near the door). Assumes the door has an **aldrop / tower bolt** — confirm.
 - **Hard safety rules (non-negotiable, apply to every option):**
   1. **Mechanical egress always.** The inside handle / thumbturn must retract the bolt
      regardless of electronics, power, or hub state. A bedroom door that can trap you is
@@ -230,30 +231,42 @@ Tuya Wi-Fi smart plug came to **~Rs 700** (not the Rs 300-600 first estimated).
   5. Auto-lock on "room empty" (LD2410) only with a long delay + easy manual unlock -
      lock-out risk.
 
-- **Options (pick after we know the door):**
-  - **A. Retrofit smart deadbolt** (Godrej / Yale / Qubo / Ultraloq), keeps the inside
-    thumbturn. Tuya-based -> `tuya-local`; Zigbee -> needs a coordinator dongle on the
-    hub. Best UX. ~Rs 8,000-20,000.
-  - **B. 12 V solenoid electric strike or drop bolt + ESP32 relay** (same relay pattern
-    as entry #4 fallback). Existing handle still opens it mechanically from inside.
-    ESPHome `lock` component. Needs 12 V supply + wiring to the frame (door-loop cable if
-    the bolt is on the leaf). ~Rs 1,500-3,000. **Likely DIY pick.**
-  - **C. Servo / linear actuator throwing the existing tower bolt (aldrop)** - common on
-    Indian room doors. No door mods, reversible, but alignment is fragile.
-    ~Rs 300-1,500.
-  - **D. Maglock** - only if fail-safe is acceptable (door unlocks in a power cut).
-    ~Rs 1,200-3,000 + relay + PSU.
+### Chosen design — servo-actuated bolt, battery node
 
-- **Sensors:** add a **reed switch** on the frame -> ESP32 `binary_sensor` ->
-  `binary_sensor.room_door` (Open/Closed). ~Rs 30. Worth it for all options.
+- **Actuator:** **MG996R metal-gear servo** (~10-12 kg-cm, ~Rs 300) on a 3D-printed /
+  metal bracket next to the aldrop, with a **lever arm + slotted linkage** to the bolt
+  knob. Slotted/loose linkage is deliberate: the bolt must still slide **by hand** with
+  the servo unpowered (safety rule #1). If the aldrop is stiff, upgrade to a 25 kg-cm
+  servo or a worm-drive linear actuator (self-locking, holds position with no power).
+- **Servo power management:** ESPHome `servo` on an LEDC `output`; a **MOSFET (or the
+  servo's own enable) cuts servo VCC between operations** so it draws ~0 idle and can't
+  buzz/back-drive. Move -> hold 500 ms -> detach + power off.
+- **Controller + power (no mains at the door):** small dedicated **ESP32** node with
+  **2x 18650 + holder + TP4056/again a protected BMS**, or a 6 V 4xAA pack through a
+  buck to 5 V. Servo stall is ~2 A so size the battery/wiring for it.
+  - **Battery life is the weak point.** A WiFi-always ESP32 + occasional servo pulses
+    drains a 2S 18650 pack in days, not weeks. Mitigations, best first:
+    1. **Run a thin USB cable** along the top of the frame to the nearest socket — often
+       the least-bad option; then it's just a normal always-on node.
+    2. Add a **small 5-6 V solar panel** trickle-charging the pack (door faces a window?).
+    3. ESP32 **deep-sleep + wake every ~10 s** to poll a retained MQTT/HA flag —
+       accept up to ~10 s lock/unlock latency, get weeks of life.
+    4. Accept a weekly recharge / swap.
+  - Decision on which mitigation: deferred to build time; try (1) first.
+- **State feedback:** reed switch on the frame -> `binary_sensor.room_door` (Open/Closed,
+  ~Rs 30). Bolt locked/unlocked = servo commanded position (ESPHome `lock` tracks it);
+  optionally a micro-switch at the bolt's locked end-of-travel for true confirmation.
+- **Integration:** ESPHome template `lock` -> HA `lock.room_door` -> PWA. `pwa/index.html`
+  already has the **Door** panel (Unlock / Lock + `s_lock` + `s_door` tiles, `lockDoor()`
+  helper calling `lock/lock` | `lock/unlock`).
+- **Automation:** manual from the PWA first. Auto-lock on "room empty" (LD2410) only later,
+  with a long delay + the reed sensor confirming the door is shut, per safety rule #5.
 
-- **Integration:** ESPHome `lock` -> HA `lock.room_door` -> PWA. Locks have real state
-  (`locked`/`unlocked`), so the PWA shows status (unlike IR devices).
-  `pwa/index.html` already has a **Door** panel: Unlock / Lock buttons + `s_lock` +
-  `s_door` status tiles, and a `lockDoor()` helper calling `lock/lock` | `lock/unlock`.
+- **Open question:** confirm the door bolt is an aldrop / tower bolt (servo throw only
+  makes sense for a sliding bolt). If it turns out to be a knob or mortise deadbolt,
+  revisit — options A/B/D from the earlier draft still apply.
 
-- **Open questions (todo.md):**
-  - Current door hardware: aldrop / tower bolt, cylindrical knob, mortise + deadbolt,
-    or already a lever handle with euro cylinder?
-  - Budget: retrofit smart lock (~Rs 10k) vs DIY solenoid (~Rs 2k)?
-  - Is 230 V / a 12 V adapter reachable near the door frame?
+### Earlier options (kept for reference if the door hardware turns out different)
+- A. Retrofit smart deadbolt (Godrej/Yale/Qubo/Ultraloq), ~Rs 8-20k, keeps thumbturn.
+- B. 12 V solenoid strike/drop bolt + ESP32 relay, ~Rs 1.5-3k, needs mains/12 V at frame.
+- D. Maglock (fail-safe only), ~Rs 1.2-3k + relay + PSU, needs power at frame.
