@@ -9,14 +9,21 @@
 - Room sensors: temperature, humidity, noise, air quality/"smell", motion/presence
 
 ## Architecture decision
-**Raspberry Pi 4 (Home Assistant) + ESP32 (ESPHome) hybrid.**
-- Pi 4 runs Home Assistant OS as the central brain/server — the PWA talks to this.
+**Old Android phone (Home Assistant Core via Termux) + ESP32 (ESPHome) hybrid.**
+- Old phone runs Home Assistant Core as the central brain/server — the PWA talks to this.
+  Originally planned as a Raspberry Pi 4, switched to a reused old smartphone to save
+  ~₹6,500, since it already has WiFi, a charger, and — as a bonus — a camera that can
+  be added as a room camera via the IP Webcam app at no extra cost.
 - ESP32 runs ESPHome as a satellite bridge: fires 2x IR emitters (AC + monitor),
   acts as a Bluetooth proxy for BLE devices, and hosts the room sensors.
 - Rejected pure-ESP32-only plan because it doesn't scale to future features
   (voice control, automations, cameras) without a rewrite.
 - Rejected raw Arduino/custom-protocol firmware in favor of ESPHome, since it
   auto-integrates with Home Assistant and avoids writing/maintaining a custom API.
+- Accepted tradeoff: an old Android phone as a 24/7 server is less reliable than a
+  purpose-built Pi (background process kills, OEM battery managers). Mitigated with
+  Termux:Boot, disabled battery optimization, and a documented fallback path to move
+  to a Pi later without rebuilding — see `homeassistant/phone-server-setup.md`.
 
 ## Phase 1 — Prove IR control works
 **Cost: ~₹500 | Time: ~1 day**
@@ -26,10 +33,15 @@
 - Decision point: confirms IR learn/transmit works reliably before spending more
 
 ## Phase 2 — Full IR coverage + real hub
-**Cost: ~₹6,500–7,000 | Time: ~2 days**
-- Hardware: Pi 4 (4GB), SD card, case/fan, power adapter, 2nd IR LED+transistor (for monitor)
-- Install Home Assistant OS, add the ESPHome device, learn remaining AC + LG monitor codes
+**Cost: ~₹0 extra (reusing an old Android phone instead of buying a Pi) | Time: ~2 days**
+- Hardware: old Android phone (WiFi + camera + charger, already owned),
+  2nd IR LED+transistor (for monitor)
+- Install Termux + Home Assistant Core on the phone (see `homeassistant/phone-server-setup.md`),
+  add the ESPHome device, learn remaining AC + LG monitor codes
+- Optional bonus at no extra cost: install IP Webcam on the same phone for a room camera feed
 - Deploy the PWA to iPhone home screen, control both devices from the app
+- Fallback: if the phone proves unreliable as a 24/7 server, Home Assistant's config folder
+  copies directly to a Pi later — no rebuild needed
 
 ## Phase 3 — WiFi + Bluetooth devices
 **Cost: ~₹0 (no new hardware) | Time: ~1 day**
