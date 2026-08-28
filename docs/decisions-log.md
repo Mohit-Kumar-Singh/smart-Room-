@@ -270,3 +270,33 @@ Tuya Wi-Fi smart plug came to **~Rs 700** (not the Rs 300-600 first estimated).
 - A. Retrofit smart deadbolt (Godrej/Yale/Qubo/Ultraloq), ~Rs 8-20k, keeps thumbturn.
 - B. 12 V solenoid strike/drop bolt + ESP32 relay, ~Rs 1.5-3k, needs mains/12 V at frame.
 - D. Maglock (fail-safe only), ~Rs 1.2-3k + relay + PSU, needs power at frame.
+
+---
+
+## 8. AC unit — Godrej 2025 1.5 Ton 5-Star Window Inverter
+
+- **Phase:** 1-2 (IR)
+- **Status:** model known; IR protocol to be identified at capture time.
+- **Unit:** Godrej 2025, 1.5 T, 5-star, **window** inverter AC. Remote has temp, mode,
+  fan speed, swing, **Turbo**, timer, sleep. ("Anti-dust filter", "anti-freeze
+  thermostat" are mechanical features, not IR-relevant.)
+
+- **Plan — try for a real thermostat entity first:**
+  1. During Phase 1, with `remote_receiver: dump: all`, press a few remote buttons and
+     watch the ESPHome log for a named decoder ("Received Coolix / Gree / ...").
+     Indian Godrej window ACs are commonly **Coolix**- or **Gree**-family.
+  2. **If a known protocol matches** -> use the matching `climate_ir_*` platform
+     (or the `climate_heatpumpir` external component) -> HA gets a full
+     `climate.room_ac` with setpoint, mode, fan. Best outcome; exact "set 24 C" works.
+  3. **If nothing decodes** -> fall back to `transmit_raw` template `button`s per
+     function: `button.ac_power_toggle`, `ac_temp_up`, `ac_temp_down`, `ac_mode`,
+     `ac_fan`, `ac_swing`, `ac_turbo` (all already wired in `pwa/index.html`).
+     Note: these ACs send the **full state** in every frame, so raw replay of a fixed
+     "temp up" frame only steps from the state it was captured in — capture each temp
+     if precision matters, or just live with relative stepping.
+
+- **PWA:** AC panel now includes **Turbo**. If we land a `climate` entity instead of
+  buttons, revisit the panel to show a setpoint slider (optional, bigger change).
+
+- **Open question:** which decoder (if any) lights up on first capture -> decides
+  climate_ir vs raw buttons.

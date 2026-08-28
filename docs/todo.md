@@ -26,6 +26,9 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · **(sw)** = doable now, 
 - [ ] Wire IR receiver OUT -> GPIO15, VCC/GND
 - [ ] Wire IR LED -> 2N2222 -> GPIO4 (100-220R series, 1k base)
 - [ ] Open ESPHome logs, point real AC remote at receiver, capture **AC power** raw code
+- [ ] Note which decoder (if any) names itself in the log (Coolix / Gree / ...) for the
+      **Godrej 1.5T window inverter** — decides `climate_ir_*` entity vs raw buttons.
+      `decisions-log.md` #8
 - [ ] Paste code into the `AC Power` template button, fire from the device web page
 - [ ] **Decision gate:** IR transmit reliable at real range? If yes -> Phase 2
 
