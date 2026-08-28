@@ -17,8 +17,7 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · **(sw)** = doable now, 
 - [x] **(sw)** Build orchestration: `Taskfile.yml` (decisions-log #6)
 - [ ] Install Task (`winget install Task.Task`) + `pipx install esphome`
 - [ ] Measure distance: planned ESP32 spot -> Godrej freshener (decides 2nd ESP32 BLE node)
-- [ ] Amazon Basics 12W bulb: does it have a standalone app (Tuya) or Alexa-only? white
-      vs RGB? chip BK7231x? — `decisions-log.md` #1
+- [x] Amazon Basics 12W bulb identified: RGB, Wipro (Tuya) app -> Path 1, PWA colour row done
 
 ## Phase 1 — Prove IR works (~1 day, ~Rs 500)
 
@@ -57,13 +56,11 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · **(sw)** = doable now, 
 
 - [ ] Amazon Basics bulb: `pip install tinytuya` -> `python -m tinytuya wizard` -> device_id + local_key
 - [ ] Install HACS; add **tuya-local**; add bulb by IP + id + key
-- [ ] Name entity `light.room_bulb`; test toggle + brightness from PWA
-- [ ] If Alexa-only (no app): flash BK7231 via cloudcutter->OpenBeken, or swap bulb — `decisions-log.md` #1
+- [ ] Name entity `light.room_bulb`; test toggle + brightness + colour from PWA
 - [ ] WiFi switches: same Tuya path; entities `switch.room_switch_1` / `_2`
 - [ ] Mosquito vaporizer (All Out Ultra Power+): Tuya Wi-Fi smart plug, knob on medium,
       plug power-on state = off; entity `switch.mosquito_repellent`; add PWA toggle.
       `decisions-log.md` #4
-- [ ] If bulb is RGB: add a colour row to the PWA Bulb panel
 - [ ] **Door lock** — servo throws the existing aldrop, battery node. `decisions-log.md` #7
   - [ ] Confirm the door bolt is an aldrop / sliding tower bolt
   - [ ] Buy: MG996R servo, dedicated ESP32, 2x 18650 + holder + TP4056/BMS, reed switch,

@@ -10,13 +10,13 @@ Format per entry: **Problem / Phase / Status / Decision / Ready steps / Open que
 ## 1. Smart bulb integration — Amazon Basics 12W WiFi (Alexa / Google Assistant)
 
 - **Phase:** 3
-- **Status:** decided (local path), blocked on: does it have a **standalone app** (Tuya)
-  or is it **Alexa-only**? That decides everything below.
-- **Bulb:** Amazon Basics 12W Smart LED, WiFi (2.4 GHz), Alexa + Google Assistant.
-  Indian Amazon Basics bulbs are almost always **Tuya-based** (BK7231 chip) and pair with
-  a rebranded Smart Life / "Amazon Basics" app — in which case the local path works.
-- **Decision:** local control, entity `light.room_bulb` (brand-neutral; already wired in
-  `pwa/index.html`).
+- **Status:** DECIDED — **Path 1** confirmed. Bulb is **RGB** and pairs with the **Wipro
+  app** (Wipro Next = Tuya white-label). So: standalone Tuya app present, NOT Alexa-only,
+  no flashing needed.
+- **Bulb:** Amazon Basics 12W Smart LED, **RGB**, WiFi 2.4 GHz, pairs in the Wipro app.
+- **Decision:** local control via `tuya-local`, entity `light.room_bulb`. PWA Bulb panel
+  now has a colour row (Warm/Cool via `kelvin`, Red/Green/Blue via `rgb_color`) plus
+  Full/Dim/Night brightness — helpers `setColor()` / `setWhite()` in `pwa/index.html`.
 
 ### Path 1 — it has a Tuya/Smart Life-style app (expected)
   1. Pair via the app. **2.4 GHz only** — phone on the 2.4 GHz SSID during pairing.
@@ -39,11 +39,9 @@ Format per entry: **Problem / Phase / Status / Decision / Ready steps / Open que
   - **Swap the bulb** for a known-local one (any Tuya/Smart Life bulb ~Rs 300-500, a
     Zigbee bulb + coordinator dongle, or an ESP + WLED strip). Cheapest certainty.
 
-- **Open questions:**
-  - Standalone app present? Which one?
-  - Tunable white or RGB? RGB -> add a colour row to the PWA Bulb panel.
-  - `local_key` **rotates if the bulb is re-paired** — re-run the wizard if so.
-  - Confirm chip is BK7231x if Path 2 flashing is needed.
+- **Resolved:** RGB, Wipro (Tuya) app -> Path 1, colour row added to PWA.
+- **Still note:** `local_key` **rotates if the bulb is re-paired** — re-run the wizard if so.
+- Path 2 (Alexa-only / flashing) no longer applies — kept below for reference only.
 
 ---
 

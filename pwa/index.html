@@ -103,14 +103,19 @@
   </div>
 </details>
 
-<!-- Room Bulb (Amazon Basics 12W WiFi) -->
+<!-- Room Bulb (Amazon Basics 12W RGB WiFi) -->
 <details class="device">
-  <summary><div><div class="name">Bulb</div><div class="tag">WiFi</div></div><span class="chev">›</span></summary>
-  <div class="controls wide">
+  <summary><div><div class="name">Bulb</div><div class="tag">WiFi · RGB</div></div><span class="chev">›</span></summary>
+  <div class="controls">
     <button class="ctrl primary" onclick="toggleEntity('light.room_bulb')">Toggle</button>
-    <button class="ctrl" onclick="setBrightness('light.room_bulb', 255)">Full bright</button>
+    <button class="ctrl" onclick="setBrightness('light.room_bulb', 255)">Full</button>
     <button class="ctrl" onclick="setBrightness('light.room_bulb', 60)">Dim</button>
     <button class="ctrl" onclick="setBrightness('light.room_bulb', 15)">Night</button>
+    <button class="ctrl" onclick="setWhite('light.room_bulb', 2700)">Warm</button>
+    <button class="ctrl" onclick="setWhite('light.room_bulb', 6500)">Cool</button>
+    <button class="ctrl" onclick="setColor('light.room_bulb', [255,0,0])">Red</button>
+    <button class="ctrl" onclick="setColor('light.room_bulb', [0,255,0])">Green</button>
+    <button class="ctrl" onclick="setColor('light.room_bulb', [0,80,255])">Blue</button>
   </div>
 </details>
 
@@ -243,6 +248,12 @@ function toggleEntity(entityId){
 }
 function setBrightness(entityId, brightness){
   haCall('/api/services/light/turn_on', { entity_id: entityId, brightness });
+}
+function setColor(entityId, rgb){
+  haCall('/api/services/light/turn_on', { entity_id: entityId, rgb_color: rgb });
+}
+function setWhite(entityId, kelvin){
+  haCall('/api/services/light/turn_on', { entity_id: entityId, kelvin });
 }
 function lockDoor(shouldLock){
   haCall(`/api/services/lock/${shouldLock ? 'lock' : 'unlock'}`, { entity_id: 'lock.room_door' });
