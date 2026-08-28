@@ -8,7 +8,8 @@ Install Home Assistant OS on the Pi 4 first (Raspberry Pi Imager → "Home Assis
 - Once online, Home Assistant will auto-discover it (notification appears) → click "Configure"
 - Your IR buttons and BLE proxy now show up as entities automatically
 
-## 2. Wipro bulb + WiFi switches (likely Tuya)
+## 2. Amazon Basics smart bulb + WiFi switches + smart plug (likely Tuya)
+See `docs/decisions-log.md` #1 for the local-key path and the Alexa-only fallback.
 - Settings → Devices & Services → Add Integration → search "Tuya" (or "Local Tuya" for fully local control, no cloud)
 - Log in with the same account as your Smart Life / Tuya app — bulb and switches import automatically
 - If bulb/switches don't show under plain "Tuya" app branding, open the app they came with and check Settings → About, it'll usually say powered by Tuya

@@ -1,7 +1,8 @@
 # Smart Room Remote
 
-A DIY universal remote + room sensor system: control AC, LG monitor, Wipro bulb,
-WiFi switches, and a BLE room freshener from a custom iPhone PWA — backed by
+A DIY universal remote + room sensor system: control AC, LG monitor, a smart bulb,
+WiFi switches, a smart plug, an IR LED strip, a servo door lock, and a BLE room
+freshener from a custom iPhone PWA — backed by
 Home Assistant Core (running on a reused old Android phone), with an ESP32 doing
 IR + Bluetooth bridging.
 

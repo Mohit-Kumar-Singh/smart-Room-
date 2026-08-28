@@ -3,7 +3,7 @@
 ## Devices in scope
 - LG monitor (controlled via IR, ThinQ app not used)
 - AC (IR remote)
-- Wipro smart bulb (WiFi, likely Tuya-based)
+- Amazon Basics 12W smart bulb (WiFi, Alexa/Google; likely Tuya/BK7231-based)
 - WiFi switches (likely Tuya-based)
 - Bluetooth room freshener spray (BLE)
 - Room sensors: temperature, humidity, noise, air quality/"smell", motion/presence

@@ -17,7 +17,8 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · **(sw)** = doable now, 
 - [x] **(sw)** Build orchestration: `Taskfile.yml` (decisions-log #6)
 - [ ] Install Task (`winget install Task.Task`) + `pipx install esphome`
 - [ ] Measure distance: planned ESP32 spot -> Godrej freshener (decides 2nd ESP32 BLE node)
-- [ ] Check Wipro bulb model + which app (white vs RGB) — `decisions-log.md` #1
+- [ ] Amazon Basics 12W bulb: does it have a standalone app (Tuya) or Alexa-only? white
+      vs RGB? chip BK7231x? — `decisions-log.md` #1
 
 ## Phase 1 — Prove IR works (~1 day, ~Rs 500)
 
@@ -54,9 +55,10 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · **(sw)** = doable now, 
 
 ## Phase 3 — WiFi + Bluetooth devices (~1 day)
 
-- [ ] Wipro bulb: `pip install tinytuya` -> `python -m tinytuya wizard` -> device_id + local_key
+- [ ] Amazon Basics bulb: `pip install tinytuya` -> `python -m tinytuya wizard` -> device_id + local_key
 - [ ] Install HACS; add **tuya-local**; add bulb by IP + id + key
-- [ ] Name entity `light.wipro_bulb`; test toggle + brightness from PWA
+- [ ] Name entity `light.room_bulb`; test toggle + brightness from PWA
+- [ ] If Alexa-only (no app): flash BK7231 via cloudcutter->OpenBeken, or swap bulb — `decisions-log.md` #1
 - [ ] WiFi switches: same Tuya path; entities `switch.room_switch_1` / `_2`
 - [ ] Mosquito vaporizer (All Out Ultra Power+): Tuya Wi-Fi smart plug, knob on medium,
       plug power-on state = off; entity `switch.mosquito_repellent`; add PWA toggle.

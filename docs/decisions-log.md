@@ -7,44 +7,43 @@ Format per entry: **Problem / Phase / Status / Decision / Ready steps / Open que
 
 ---
 
-## 1. Wipro WiFi bulb integration
+## 1. Smart bulb integration — Amazon Basics 12W WiFi (Alexa / Google Assistant)
 
 - **Phase:** 3
-- **Status:** decided (local path), blocked on bulb model for the command set
-- **Decision:** Wipro Smart / Wipro Next app is a **Tuya white-label**. Use a **local**
-  integration, not cloud Tuya - the hub is an offline-first old phone, cloud control
-  dies when the internet drops.
-  - Primary: **`tuya-local`** ("Local Tuya" by make-all) via HACS - actively maintained,
-    has a Wipro bulb profile, no cloud calls after setup.
-  - Fallback: official HA **Tuya** cloud integration (Settings -> Devices & Services ->
-    Add Integration -> Tuya, log in with the Wipro app account). Zero key extraction,
-    but cloud-dependent + ~1-2 s latency.
+- **Status:** decided (local path), blocked on: does it have a **standalone app** (Tuya)
+  or is it **Alexa-only**? That decides everything below.
+- **Bulb:** Amazon Basics 12W Smart LED, WiFi (2.4 GHz), Alexa + Google Assistant.
+  Indian Amazon Basics bulbs are almost always **Tuya-based** (BK7231 chip) and pair with
+  a rebranded Smart Life / "Amazon Basics" app — in which case the local path works.
+- **Decision:** local control, entity `light.room_bulb` (brand-neutral; already wired in
+  `pwa/index.html`).
 
-- **Ready steps:**
-  1. Pair the bulb via the Wipro/Smart Life app. **2.4 GHz WiFi only** - phone must be
-     on the 2.4 GHz SSID during pairing.
-  2. Reserve a **static DHCP lease** for the bulb in the router (local control needs a
-     stable IP).
-  3. Extract `device_id` + `local_key`: `pip install tinytuya` then
-     `python -m tinytuya wizard`. It walks through creating a free iot.tuya.com cloud
-     project, linking the app account, and writes all device ids + keys to
-     `devices.json`. Cloud is touched **once**, here only.
-  4. Install **HACS** on Home Assistant, add **Local Tuya / tuya-local**.
-  5. Add the bulb: IP + device_id + local_key. DP mapping auto-detects for known Wipro
-     profiles: on/off, brightness (usually DP 22, scale 0-1000), color-temp or RGB by
-     model.
-  6. Name the entity **`light.wipro_bulb`** - hardcoded in `pwa/index.html`
-     (`toggleEntity('light.wipro_bulb')`, `setBrightness('light.wipro_bulb', ...)`).
-     Rename in HA or update the PWA.
-  7. Test: toggle + Full/Dim/Night brightness buttons from the PWA.
+### Path 1 — it has a Tuya/Smart Life-style app (expected)
+  1. Pair via the app. **2.4 GHz only** — phone on the 2.4 GHz SSID during pairing.
+  2. Reserve a **static DHCP lease** for the bulb.
+  3. `pip install tinytuya` -> `python -m tinytuya wizard` -> creates a free iot.tuya.com
+     project, links the app account, dumps device ids + `local_key` to `devices.json`.
+     Cloud touched once, here only.
+  4. HACS -> **Local Tuya / tuya-local**; add bulb by IP + device_id + local_key.
+     DPs: on/off, brightness (often DP 22, 0-1000), color-temp / RGB by model.
+  5. Name entity `light.room_bulb`; test toggle + Full/Dim/Night from the PWA.
+
+### Path 2 — it's Alexa-cloud-only (no standalone app, setup only via Alexa app)
+  No local key to extract. Poor fit for an offline-first hub. In order of preference:
+  - **Flash it.** BK7231-based Amazon Basics bulbs can be flashed **over-the-air with
+    cloudcutter -> OpenBeken (LibreTiny)** for fully local MQTT/HA control, no cloud.
+    Advanced but permanent and offline. Verify the chip first (tuya-cloudcutter device
+    list / open the bulb).
+  - **Official HA Tuya cloud integration** if it is still a Tuya device on the backend —
+    works but cloud-dependent (~1-2 s latency, dies with the internet).
+  - **Swap the bulb** for a known-local one (any Tuya/Smart Life bulb ~Rs 300-500, a
+    Zigbee bulb + coordinator dongle, or an ESP + WLED strip). Cheapest certainty.
 
 - **Open questions:**
-  - Exact bulb model + originating app (Wipro Smart / Wipro Next / Smart Life)?
-    - Tunable white (9W/12W "Smart White") -> on/off + brightness + color-temp
-    - RGB ("Smart Color" / Garnet RGB) -> also hue/saturation/effects; PWA Bulb panel
-      needs a colour row added.
-  - `local_key` **rotates if the bulb is re-paired** in the app - re-run the wizard if
-    that happens.
+  - Standalone app present? Which one?
+  - Tunable white or RGB? RGB -> add a colour row to the PWA Bulb panel.
+  - `local_key` **rotates if the bulb is re-paired** — re-run the wizard if so.
+  - Confirm chip is BK7231x if Path 2 flashing is needed.
 
 ---
 
