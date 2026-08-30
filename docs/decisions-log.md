@@ -342,3 +342,37 @@ IR blaster + radar want to be.
   cable. Optional: one diffused WS2812 behind a slot as a subtle "alive" glow.
 - Keep low-voltage only in these boxes - the mains smart plug and the servo door lock are
   separate, so no 230 V anywhere near this enclosure.
+
+---
+
+## 10. LG 32SR50F-W MyView Smart Monitor — webOS network control (not IR)
+
+- **Phase:** 3 (moved out of the Phase 1-2 IR work)
+- **Status:** DECIDED — control over WiFi via Home Assistant's native **LG webOS**
+  integration. IR for the monitor is dropped (optional power-on backup only).
+- **Why:** the 32SR50F-W is effectively a webOS TV — WiFi, Bluetooth, apps, network API,
+  real state feedback. IR blasting is strictly worse.
+
+- **Ready steps:**
+  1. TV on the same LAN; give it a **static DHCP lease**.
+  2. HA -> Settings -> Devices & Services -> Add Integration -> **LG webOS Smart TV** ->
+     enter the TV IP. Accept the pairing prompt on the TV screen; HA stores a client key.
+  3. Entity `media_player.lg_monitor`. Services used by the PWA: `toggle` (power),
+     `volume_up`, `volume_down`, `volume_mute {is_volume_muted}`, `media_play_pause`,
+     `select_source` (HDMI1 / app names).
+  4. **Power-ON = Wake-on-LAN.** Enable on the TV: Settings -> (General/Connection) ->
+     "Mobile TV On" / "Turn on via Wi-Fi". If WoL is flaky, learn ONE IR power code as a
+     backup (`button.lg_monitor_power`) and wire it to an IR LED like the AC.
+  5. Optional: `webostv.button` / `webostv.command` for arrow keys, Home, Back if you
+     want a d-pad in the PWA later.
+
+- **PWA:** LG Monitor panel reworked — Power / Vol +/- / Mute / Play-Pause + a live
+  **State** tile. Helper `mp()` in `pwa/index.html`. Old `button.lg_monitor_*` IR
+  entities removed.
+
+- **Frees up:** GPIO16 / the 2nd IR LED is no longer needed for the monitor — that IR LED
+  can instead serve the LED strip if its controller is off-axis from the AC LED.
+
+### Update to entry #2 (Godrej aer freshener)
+ESP32 <-> freshener distance confirmed **~8 ft (2.4 m)** — well within BLE range.
+**No 2nd ESP32 BLE node needed**; the main ESP32 runs the `ble_client`.

@@ -1,7 +1,8 @@
 # Build Plan — Smart Room Remote
 
 ## Devices in scope
-- LG monitor (controlled via IR, ThinQ app not used)
+- LG 32SR50F-W MyView smart monitor (webOS — controlled over WiFi via HA's LG webOS
+  integration, not IR)
 - AC (IR remote)
 - Amazon Basics 12W smart bulb (WiFi, Alexa/Google; likely Tuya/BK7231-based)
 - WiFi switches (likely Tuya-based)

@@ -14,9 +14,13 @@ See `docs/decisions-log.md` #1 for the local-key path and the Alexa-only fallbac
 - Log in with the same account as your Smart Life / Tuya app — bulb and switches import automatically
 - If bulb/switches don't show under plain "Tuya" app branding, open the app they came with and check Settings → About, it'll usually say powered by Tuya
 
-## 3. LG monitor
-- Skip ThinQ integration entirely (needs LG developer approval, overkill for a monitor)
-- Control it purely via the IR codes you capture from the real remote — same method as the AC
+## 3. LG monitor (32SR50F-W, webOS)
+- It's a webOS smart monitor — use HA's native **LG webOS Smart TV** integration over WiFi
+- Add Integration → LG webOS Smart TV → TV IP → accept the pairing prompt on screen
+- Entity `media_player.lg_monitor`; give the TV a static DHCP lease
+- Power-on = Wake-on-LAN: enable "Mobile TV On" / "Turn on via Wi-Fi" on the TV
+- Skip ThinQ (needs LG developer approval). IR only as an optional power-on backup.
+- See `docs/decisions-log.md` #10
 
 ## 4. AC (IR only)
 - Capture codes using the ESPHome logs method (see LEARNING-IR-CODES.md)

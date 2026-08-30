@@ -16,7 +16,7 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · **(sw)** = doable now, 
 - [x] **(sw)** Trim ESPHome config to IR-only for Phase 1 -> `esphome/phase1-ir-poc.yaml`
 - [x] **(sw)** Build orchestration: `Taskfile.yml` (decisions-log #6)
 - [ ] Install Task (`winget install Task.Task`) + `pipx install esphome`
-- [ ] Measure distance: planned ESP32 spot -> Godrej freshener (decides 2nd ESP32 BLE node)
+- [x] ESP32 <-> Godrej freshener distance = ~8 ft -> in BLE range, no 2nd ESP32 needed
 - [x] Amazon Basics 12W bulb identified: RGB, Wipro (Tuya) app -> Path 1, PWA colour row done
 
 ## Phase 1 — Prove IR works (~1 day, ~Rs 500)
@@ -40,8 +40,9 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · **(sw)** = doable now, 
 - [ ] Termux:Boot add-on so `hass` auto-starts on reboot
 - [ ] Static DHCP leases for the phone AND the ESP32
 - [ ] HA onboarding at `http://<phone-ip>:8123`; install ESPHome add-on / add the device
-- [ ] Add 2nd IR LED -> GPIO16 (LG monitor); promote config to full `room-remote-bridge.yaml`
-- [ ] Learn remaining codes: AC temp +/-, mode, fan, swing; monitor power/input/vol
+- [ ] Promote config to full `room-remote-bridge.yaml` (2nd IR LED on GPIO16 now optional —
+      monitor is webOS, not IR; use it for the LED strip if needed)
+- [ ] Learn remaining AC codes: temp +/-, mode, fan, swing, turbo
 - [ ] Learn **LED strip** remote codes (power, bright +/-, colours, flash/fade); add
       template buttons `button.led_strip_*` — already wired in the PWA. `decisions-log.md` #5
       (add a 3rd IR LED on another GPIO if the strip controller is off-axis from the AC LED)
@@ -49,7 +50,7 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · **(sw)** = doable now, 
 - [x] **(sw)** PWA: switch settings from in-memory to `localStorage` (`pwa/index.html`)
 - [ ] **(sw)** PWA: add `icon-192.png` / `icon-512.png` (referenced by manifest, missing)
 - [ ] Deploy PWA (static host or HA `www/`), add to iPhone home screen, enter URL + token
-- [ ] Verify AC + monitor controls from the PWA
+- [ ] Verify AC controls from the PWA (monitor is Phase 3 via webOS)
 - [ ] Bonus: IP Webcam on the phone -> HA Generic Camera
 
 ## Phase 3 — WiFi + Bluetooth devices (~1 day)
@@ -57,6 +58,9 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · **(sw)** = doable now, 
 - [ ] Amazon Basics bulb: `pip install tinytuya` -> `python -m tinytuya wizard` -> device_id + local_key
 - [ ] Install HACS; add **tuya-local**; add bulb by IP + id + key
 - [ ] Name entity `light.room_bulb`; test toggle + brightness + colour from PWA
+- [ ] **LG monitor (32SR50F-W)**: HA -> Add Integration -> LG webOS Smart TV -> TV IP ->
+      accept prompt on screen. Entity `media_player.lg_monitor`. Static DHCP lease.
+      Enable "Mobile TV On" for Wake-on-LAN power-on. `decisions-log.md` #10
 - [ ] WiFi switches: same Tuya path; entities `switch.room_switch_1` / `_2`
 - [ ] Mosquito vaporizer (All Out Ultra Power+): Tuya Wi-Fi smart plug, knob on medium,
       plug power-on state = off; entity `switch.mosquito_repellent`; add PWA toggle.

@@ -92,14 +92,16 @@
   </div>
 </details>
 
-<!-- LG Monitor -->
+<!-- LG Monitor (LG 32SR50F-W, webOS over WiFi) -->
 <details class="device">
-  <summary><div><div class="name">LG Monitor</div><div class="tag">IR</div></div><span class="chev">›</span></summary>
+  <summary><div><div class="name">LG Monitor</div><div class="tag">WiFi · webOS</div></div><span class="chev">›</span></summary>
   <div class="controls">
-    <button class="ctrl primary" onclick="fireButton('button.lg_monitor_power')">Power</button>
-    <button class="ctrl" onclick="fireButton('button.lg_monitor_input')">Input</button>
-    <button class="ctrl" onclick="fireButton('button.lg_monitor_vol_up')">Vol +</button>
-    <button class="ctrl" onclick="fireButton('button.lg_monitor_vol_down')">Vol −</button>
+    <button class="ctrl primary" onclick="mp('toggle')">Power</button>
+    <button class="ctrl" onclick="mp('volume_up')">Vol +</button>
+    <button class="ctrl" onclick="mp('volume_down')">Vol −</button>
+    <button class="ctrl" onclick="mp('volume_mute', {is_volume_muted: true})">Mute</button>
+    <button class="ctrl" onclick="mp('media_play_pause')">Play/Pause</button>
+    <div class="ctrl" style="text-align:left; cursor:default;">State<br><b id="s_mon">–</b></div>
   </div>
 </details>
 
@@ -258,6 +260,10 @@ function setWhite(entityId, kelvin){
 function lockDoor(shouldLock){
   haCall(`/api/services/lock/${shouldLock ? 'lock' : 'unlock'}`, { entity_id: 'lock.room_door' });
 }
+function mp(service, extra){
+  haCall(`/api/services/media_player/${service}`,
+    Object.assign({ entity_id: 'media_player.lg_monitor' }, extra || {}));
+}
 
 function showToast(msg){
   const t = document.getElementById('toast');
@@ -297,6 +303,7 @@ async function refreshSensors(){
     s_motion: ['binary_sensor.room_motion', v => v === 'on' ? 'Yes' : v === 'off' ? 'No' : '–'],
     s_lock: ['lock.room_door', v => v ? v[0].toUpperCase() + v.slice(1) : '–'],
     s_door: ['binary_sensor.room_door', v => v === 'on' ? 'Open' : v === 'off' ? 'Closed' : '–'],
+    s_mon: ['media_player.lg_monitor', v => v ? v[0].toUpperCase() + v.slice(1) : '–'],
   };
   for(const [elId, [entity, fmt]] of Object.entries(map)){
     const state = await getState(entity);

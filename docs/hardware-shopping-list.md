@@ -51,7 +51,8 @@ Wiring targets (from `esphome/room-remote-bridge.yaml`):
 | # | Part | Notes | Approx price |
 |---|---|---|---|
 | - | **Tuya Wi-Fi smart plug** (6A/16A) | for the All Out Ultra Power+ mosquito vaporizer - switch its mains. Any Tuya/Smart Life plug; comes through `tuya-local` with the bulb. Set power-on state = off. | ~Rs 700 |
-| - | (maybe) **2nd ESP32 38-pin** | only if the Godrej freshener is >5-8 m from the main ESP32 - dedicated BLE node. Same board as Phase 1. | Rs 494 |
+| - | ~~2nd ESP32 for a BLE node~~ | NOT needed — freshener is ~8 ft from the main ESP32, inside BLE range. | Rs 0 |
+| - | LG monitor: **no IR parts** | 32SR50F-W is webOS — controlled over WiFi (HA LG webOS integration), not IR. | Rs 0 |
 
 ### Door lock (servo on the aldrop, battery node) — decisions-log #7
 
@@ -108,14 +109,14 @@ Amazon Basics bulb, WiFi switches, Godrej aer freshener, IR LED strip) = Rs 0.
 | **Phase 4 — sensors** | BME280 654 + MQ-135 257 + KY-037 140 + LD2410C 999 | **Rs 2,050** |
 | **Phase 5 — enclosure** | ABS project box ~200 + thin hookup wire (IR LED leads) ~80 + 6-8 core cable for sensor pod ~120 + standoffs/screws ~60 + 2nd small box ~120 (3D print + WS2812 optional) | **~Rs 500-700** |
 | **Common hardware subtotal** | | **~Rs 6,378** |
-| Optional | 2nd ESP32 for BLE node 494 + solar trickle panel 250 + bolt micro-switch 20 | +Rs 764 |
+| Optional | solar trickle panel 250 + bolt micro-switch 20 | +Rs 270 |
 
 ### Scenario A — reuse an old Android phone as the hub
 | | |
 |---|---|
 | Hub | **Rs 0** (already owned; bonus free room camera via IP Webcam) |
 | **Full build (Phases 1-5)** | **~Rs 6,400** |
-| With optional extras | ~Rs 7,150 |
+| With optional extras | ~Rs 6,700 |
 | Minimum useful (Phases 1-3 only) | ~Rs 3,830 |
 
 ### Scenario B — Raspberry Pi 4 as the hub
@@ -123,7 +124,7 @@ Amazon Basics bulb, WiFi switches, Godrej aer freshener, IR LED strip) = Rs 0.
 |---|---|
 | Hub | Pi 4 (2 GB) ~4,500 + 32 GB SD ~500 + 27 W USB-C PSU ~900 + case ~400 = **~Rs 6,300** |
 | **Full build (Phases 1-5)** | **~Rs 12,700** |
-| With optional extras | ~Rs 13,450 |
+| With optional extras | ~Rs 13,000 |
 | Minimum useful (Phases 1-3 only) | ~Rs 10,150 |
 
 **Difference: ~Rs 6,300-6,500**, which is why the project uses the phone (see PLANNING.md).
