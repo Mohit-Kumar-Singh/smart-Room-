@@ -297,3 +297,48 @@ Tuya Wi-Fi smart plug came to **~Rs 700** (not the Rs 300-600 first estimated).
 
 - **Open question:** which decoder (if any) lights up on first capture -> decides
   climate_ir vs raw buttons.
+
+---
+
+## 9. Enclosure(s) + IR-emitter wiring topology
+
+- **Phase:** 5 (build a rough box in Phase 1-2, finalise in Phase 5)
+
+### IR emitter wiring — star, not chained
+- ESP32 + all transistors + resistors stay in ONE box.
+- Each IR LED = a 5 mm LED on a **dedicated 2-wire pair** back to its own GPIO+transistor.
+  Never wire one LED to the next.
+- Default: mount 2-3 IR LEDs on the box **front face**, splayed ~15-20 deg, and place the
+  box with line of sight to AC + monitor + strip controller. IR is wide-angle and bounces;
+  one box usually covers the room.
+- Only run a **flying-lead LED** (26-28 AWG pair, <=3-5 m, e.g. CAT5/earphone wire) to a
+  device that has NO line of sight to the box. Transistor still stays in the box.
+- IR **receiver** (TSOP) is only for code learning - front-mounted recessed, or a temp lead.
+
+### Enclosure layout — 2 boxes, 1 ESP32 (recommended)
+Reason: MQ-135 runs hot (~0.5-1 W heater) and would bias the BME280 temp; and air
+quality / temperature are only meaningful at human height, not at the ceiling where the
+IR blaster + radar want to be.
+
+- **Main box** — high shelf or wall/ceiling corner:
+  ESP32, 2-3 IR emitter LEDs (front), IR receiver, **LD2410 radar** flat against a thin
+  (<=3 mm) plain-plastic front wall (radar passes through ABS/PLA but NOT metal or
+  metallic paint). Single 5 V USB feed in via a side cutout.
+- **Sensor pod** — small vented box at ~1.2 m on the wall or on the desk:
+  BME280 + MQ-135 + KY-037, linked to the main box by one slim ~1.5 m cable carrying
+  5 V, GND, I2C SDA/SCL (BME280), 2x analog (MQ-135, mic). I2C over 1.5 m is fine at
+  100 kHz with a twisted pair; the analog lines are "trend" quality, not lab precision.
+- **One-box alternative** (acceptable): put everything at desk height with good sightlines,
+  vent the back/bottom, keep MQ-135 far from BME280, and calibrate out the residual
+  +1-2 C offset in ESPHome.
+
+### Build / finish
+- **v1:** off-the-shelf ABS project box (~100x68x50 mm, ~Rs 200) - drill 5 mm holes for IR
+  LEDs, a grille/slot for the sensor pod, a USB cutout. Fast, proves the layout.
+- **v2 (Phase 5):** 3D-printed shell once layout is locked - matte PLA/PETG, small
+  footprint, angled soundbar-ish front. Wiring diagram (Fritzing) + enclosure model
+  (Tinkercad/Fusion) go in `docs/`.
+- Vents on back/bottom, not the show face. Match furniture colour / matte black; hide the
+  cable. Optional: one diffused WS2812 behind a slot as a subtle "alive" glow.
+- Keep low-voltage only in these boxes - the mains smart plug and the servo door lock are
+  separate, so no 230 V anywhere near this enclosure.

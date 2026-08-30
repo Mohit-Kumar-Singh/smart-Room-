@@ -106,7 +106,7 @@ Amazon Basics bulb, WiFi switches, Godrej aer freshener, IR LED strip) = Rs 0.
 | **Phase 3 — smart plug** | Tuya Wi-Fi plug (mosquito vaporizer) | **Rs 700** |
 | **Phase 3 — door lock** | MG996R servo 300 + dedicated ESP32 400 + 2x18650+holder+TP4056 400 + reed switch 50 + MOSFET 40 + bracket/linkage 200 | **Rs 1,390** |
 | **Phase 4 — sensors** | BME280 654 + MQ-135 257 + KY-037 140 + LD2410C 999 | **Rs 2,050** |
-| **Phase 5 — enclosure** | project box + standoffs + misc (3D print optional) | **~Rs 500** |
+| **Phase 5 — enclosure** | ABS project box ~200 + thin hookup wire (IR LED leads) ~80 + 6-8 core cable for sensor pod ~120 + standoffs/screws ~60 + 2nd small box ~120 (3D print + WS2812 optional) | **~Rs 500-700** |
 | **Common hardware subtotal** | | **~Rs 6,378** |
 | Optional | 2nd ESP32 for BLE node 494 + solar trickle panel 250 + bolt micro-switch 20 | +Rs 764 |
 

@@ -89,12 +89,19 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · **(sw)** = doable now, 
 - [ ] MQ-135 burn-in 24-48 h, then set calibration baseline
 - [ ] Confirm all six sensor tiles populate in the PWA (`sensor.room_*`, `binary_sensor.room_*`)
 
-## Phase 5 — Diagrams & enclosure
+## Phase 5 — Diagrams & enclosure  (`decisions-log.md` #9)
 
 - [ ] Circuit diagram (Fritzing or KiCad) for the ESP32 + IR + sensor build
 - [ ] Wiring diagram with GPIO/pin callouts
-- [ ] Enclosure: project box or 3D-printed; IR LED windows aimed at AC + monitor;
-      vents for MQ-135/BME280; radar has clear plastic in front
+- [ ] v1 enclosure: off-the-shelf ABS project box (~100x68x50), drill IR-LED holes +
+      sensor grille + USB cutout — prove the layout
+- [ ] Decide 1-box vs 2-box (main box high for IR+radar, sensor pod at ~1.2 m on a
+      ~1.5 m tail cable: 5V/GND/SDA/SCL/2x analog). Default = 2-box.
+- [ ] IR LEDs on the front face, splayed ~15-20 deg; flying-lead LED only for a device
+      with no line of sight (star wiring — never chain LED to LED)
+- [ ] LD2410 behind <=3 mm plain plastic, no metal / metallic paint in front
+- [ ] v2 (later): 3D-printed shell once layout locked; matte finish, vents on back/bottom
+- [ ] Optional: 1x WS2812 behind a diffused slot as a subtle status glow
 
 ## Phase 6 — Phone-as-appliance (stretch, do not block 1-4)
 
