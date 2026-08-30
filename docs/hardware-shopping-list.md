@@ -92,3 +92,41 @@ Try a thin USB cable to the nearest socket first — it removes the whole batter
 Indian generic-electronics ratings run noisy (inflated 5-stars, tiny counts). Picks were
 weighted by review count. The ESP32 board and the KY-037 sound sensor are the
 weakest-reviewed lines - the listed alternates are the fallback if stock or ratings shift.
+
+---
+
+## Total cost — phone hub vs Raspberry Pi hub
+
+All prices approximate INR, incl. GST, Aug 2026. Devices already owned (AC, LG monitor,
+Amazon Basics bulb, WiFi switches, Godrej aer freshener, IR LED strip) = Rs 0.
+
+| Bucket | Items | Cost |
+|---|---|---|
+| **Phase 1 — IR PoC** | ESP32 494 + breadboard/jumpers 355 + IR rx 279 + IR LEDs x25 279 + 2N2222 132 + resistor kit 199 | **Rs 1,738** |
+| **Phase 3 — smart plug** | Tuya Wi-Fi plug (mosquito vaporizer) | **Rs 700** |
+| **Phase 3 — door lock** | MG996R servo 300 + dedicated ESP32 400 + 2x18650+holder+TP4056 400 + reed switch 50 + MOSFET 40 + bracket/linkage 200 | **Rs 1,390** |
+| **Phase 4 — sensors** | BME280 654 + MQ-135 257 + KY-037 140 + LD2410C 999 | **Rs 2,050** |
+| **Phase 5 — enclosure** | project box + standoffs + misc (3D print optional) | **~Rs 500** |
+| **Common hardware subtotal** | | **~Rs 6,378** |
+| Optional | 2nd ESP32 for BLE node 494 + solar trickle panel 250 + bolt micro-switch 20 | +Rs 764 |
+
+### Scenario A — reuse an old Android phone as the hub
+| | |
+|---|---|
+| Hub | **Rs 0** (already owned; bonus free room camera via IP Webcam) |
+| **Full build (Phases 1-5)** | **~Rs 6,400** |
+| With optional extras | ~Rs 7,150 |
+| Minimum useful (Phases 1-3 only) | ~Rs 3,830 |
+
+### Scenario B — Raspberry Pi 4 as the hub
+| | |
+|---|---|
+| Hub | Pi 4 (2 GB) ~4,500 + 32 GB SD ~500 + 27 W USB-C PSU ~900 + case ~400 = **~Rs 6,300** |
+| **Full build (Phases 1-5)** | **~Rs 12,700** |
+| With optional extras | ~Rs 13,450 |
+| Minimum useful (Phases 1-3 only) | ~Rs 10,150 |
+
+**Difference: ~Rs 6,300-6,500**, which is why the project uses the phone (see PLANNING.md).
+The Pi is more reliable as a 24/7 server; the phone trade-off is mitigated with
+Termux:Boot + disabled battery optimization, and HA config copies to a Pi later with no
+rebuild if it proves flaky.
