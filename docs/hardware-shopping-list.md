@@ -52,7 +52,7 @@ Wiring targets (from `esphome/room-remote-bridge.yaml`):
 |---|---|---|---|
 | - | **Tuya Wi-Fi smart plug** (6A/16A) | for the All Out Ultra Power+ mosquito vaporizer - switch its mains. Any Tuya/Smart Life plug; comes through `tuya-local` with the bulb. Set power-on state = off. | ~Rs 700 |
 | - | ~~2nd ESP32 for a BLE node~~ | NOT needed — freshener is ~8 ft from the main ESP32, inside BLE range. | Rs 0 |
-| - | LG monitor: **no IR parts** | 32SR50F-W is webOS — controlled over WiFi (HA LG webOS integration), not IR. | Rs 0 |
+| - | LG monitor | primary control = webOS over WiFi (Rs 0). Keep **1 IR LED on GPIO16** aimed at it for a Wake-on-LAN power-on backup — covered by the Phase 1 IR LED pack. | Rs 0 |
 
 ### Door lock (servo on the aldrop, battery node) — decisions-log #7
 

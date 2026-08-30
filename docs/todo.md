@@ -40,9 +40,11 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · **(sw)** = doable now, 
 - [ ] Termux:Boot add-on so `hass` auto-starts on reboot
 - [ ] Static DHCP leases for the phone AND the ESP32
 - [ ] HA onboarding at `http://<phone-ip>:8123`; install ESPHome add-on / add the device
-- [ ] Promote config to full `room-remote-bridge.yaml` (2nd IR LED on GPIO16 now optional —
-      monitor is webOS, not IR; use it for the LED strip if needed)
+- [ ] Promote config to full `room-remote-bridge.yaml`; 2nd IR LED on GPIO16 aimed at the
+      monitor (for the IR power-on backup + optionally the LED strip)
 - [ ] Learn remaining AC codes: temp +/-, mode, fan, swing, turbo
+- [ ] Learn monitor **Power** IR code (+ optional Vol/nav) from its bundled remote ->
+      `button.lg_monitor_power` (Wake-on-LAN backup). `decisions-log.md` #10
 - [ ] Learn **LED strip** remote codes (power, bright +/-, colours, flash/fade); add
       template buttons `button.led_strip_*` — already wired in the PWA. `decisions-log.md` #5
       (add a 3rd IR LED on another GPIO if the strip controller is off-axis from the AC LED)

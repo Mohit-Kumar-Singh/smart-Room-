@@ -19,7 +19,9 @@ See `docs/decisions-log.md` #1 for the local-key path and the Alexa-only fallbac
 - Add Integration → LG webOS Smart TV → TV IP → accept the pairing prompt on screen
 - Entity `media_player.lg_monitor`; give the TV a static DHCP lease
 - Power-on = Wake-on-LAN: enable "Mobile TV On" / "Turn on via Wi-Fi" on the TV
-- Skip ThinQ (needs LG developer approval). IR only as an optional power-on backup.
+- Skip ThinQ (needs LG developer approval)
+- The monitor ships with an IR remote — learn its **Power** code too (`button.lg_monitor_power`)
+  as a Wake-on-LAN power-on backup; wire 1 IR LED on GPIO16 aimed at the monitor
 - See `docs/decisions-log.md` #10
 
 ## 4. AC (IR only)

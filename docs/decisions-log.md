@@ -345,13 +345,14 @@ IR blaster + radar want to be.
 
 ---
 
-## 10. LG 32SR50F-W MyView Smart Monitor — webOS network control (not IR)
+## 10. LG 32SR50F-W MyView Smart Monitor — webOS + IR power-on backup
 
-- **Phase:** 3 (moved out of the Phase 1-2 IR work)
-- **Status:** DECIDED — control over WiFi via Home Assistant's native **LG webOS**
-  integration. IR for the monitor is dropped (optional power-on backup only).
-- **Why:** the 32SR50F-W is effectively a webOS TV — WiFi, Bluetooth, apps, network API,
-  real state feedback. IR blasting is strictly worse.
+- **Phase:** webOS in Phase 3; IR power code learned in Phase 1-2.
+- **Status:** DECIDED — **primary = WiFi via HA's native LG webOS integration**;
+  **secondary = IR** (the monitor ships with an IR remote), used as a power-on fallback.
+- **Why hybrid:** webOS gives real state, app launch, no line-of-sight. But webOS
+  power-ON relies on Wake-on-LAN, which on LG panels is unreliable from fully-off (works
+  from standby). An IR `Power` code always works and works with HA/network down.
 
 - **Ready steps:**
   1. TV on the same LAN; give it a **static DHCP lease**.
@@ -361,17 +362,17 @@ IR blaster + radar want to be.
      `volume_up`, `volume_down`, `volume_mute {is_volume_muted}`, `media_play_pause`,
      `select_source` (HDMI1 / app names).
   4. **Power-ON = Wake-on-LAN.** Enable on the TV: Settings -> (General/Connection) ->
-     "Mobile TV On" / "Turn on via Wi-Fi". If WoL is flaky, learn ONE IR power code as a
-     backup (`button.lg_monitor_power`) and wire it to an IR LED like the AC.
+     "Mobile TV On" / "Turn on via Wi-Fi".
   5. Optional: `webostv.button` / `webostv.command` for arrow keys, Home, Back if you
      want a d-pad in the PWA later.
 
-- **PWA:** LG Monitor panel reworked — Power / Vol +/- / Mute / Play-Pause + a live
-  **State** tile. Helper `mp()` in `pwa/index.html`. Old `button.lg_monitor_*` IR
-  entities removed.
+- **IR backup (Phase 1-2):** while the IR receiver is wired for AC learning, also capture
+  the monitor **Power** code (optionally Vol +/-, nav) from its bundled remote. Add
+  `button.lg_monitor_power` and put **one IR LED on GPIO16 aimed at the monitor**.
 
-- **Frees up:** GPIO16 / the 2nd IR LED is no longer needed for the monitor — that IR LED
-  can instead serve the LED strip if its controller is off-axis from the AC LED.
+- **PWA:** LG Monitor panel = Power (webOS toggle) / Vol +/- / Mute / Play-Pause +
+  **IR Pwr** backup button + a live **State** tile. Helpers `mp()` (webOS) and
+  `fireButton()` (IR) in `pwa/index.html`.
 
 ### Update to entry #2 (Godrej aer freshener)
 ESP32 <-> freshener distance confirmed **~8 ft (2.4 m)** — well within BLE range.
